@@ -1,14 +1,29 @@
 %% Credits of this ams template are with respective people. @Devansh1106 neither own this template nor the credits. 
 \documentclass[reqno]{amsart}
 
+\usepackage[numbers]{natbib}
+\setlength{\bibsep}{8pt}
 \usepackage{graphicx}
-
+\usepackage{hyperref}
+\usepackage{lineno}
 \usepackage{amssymb}
+\usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{mathrsfs}
+\usepackage{esint}
+\usepackage{fancyhdr}
 \setlength{\parskip}{0.5\baselineskip}%
 \setlength{\parindent}{20pt}
 \theoremstyle{plain}
+
+\pagestyle{fancy}
+\fancyhf{} % Clear default headers/footers
+\setlength{\headheight}{10.0pt}
+% Even pages: Paper title
+\fancyhead[LE]{\footnotesize\textit{Nonlocality and Nonlinearity Implies Universality}}
+
+% Odd pages: Author name
+\fancyhead[RO]{\footnotesize\textit{Devansh Tripathi}}
 
 \newtheorem*{thm*}{Theorem}
 %% this allows for theorems which are not automatically numbered
@@ -22,16 +37,21 @@
 \newtheorem{rem}{Remark}
 \newcommand{\bb}[1]{\mathbb{#1}}
 \newcommand{\cal}[1]{\mathcal{#1}}
-\usepackage{lineno}
+
+\hypersetup{
+    colorlinks=false,
+    linkcolor=blue,    % Internal links (sections, equations)
+    citecolor=red,     % Citation links
+    urlcolor=magenta   % URLs (DOIs, websites)
+}
 %% The above lines are for formatting.  In general, you will not want to change these.
 
 \title{Report on the paper ``Nonlocality and Nonlinearity Implies Universality in Operator Learning''}
-\author{Devansh Tripathi* \\ ETH Z\lowercase{\"urich}}
-\address{*Seminar für Angewandte Mathematik, HG E 62.2, Rämistrasse 101, 8092 Zürich Switzerland
-}
-\email{devansh.tripathi@sam.math.ethz.ch}
+\author{Devansh Tripathi \\ ETH Z\lowercase{\"urich}}
+\thanks{Seminar für Angewandte Mathematik, HG E 62.2, Rämistrasse 101, 8092 Zürich, Switzerland \\ \href{mailto:devansh.tripathi@sam.math.ethz.ch}{\texttt{devansh.tripathi@sam.math.ethz.ch}}}
 
 \begin{document}
+
 
 \begin{abstract}
     Neural operator architecture approximate operators between infinite dimensional Banach spaces of function. The paper discuss the basic questions about the requirements for universal approximation of neural operator and provide conditions under which neural operators are universal approximators. Author argued that the general approximation of operators between spaces of functions must be both {\it nonlocal} and {\it nonlinear}.
@@ -40,6 +60,61 @@
 \end{abstract}
 \maketitle
 \section{\bf \large Introduction}
+\noindent The task that we are trying to achieve with the help of neural networks is to approximate the underlying operator, which defines a mapping between two infinite-dimensional Banach spaces of functions. Neural operator generalizs the underlying framework of neural network to infinite-dimensional setting and learn such operators from the data. The wide range of neural operators introduced in \cite{AAK2020, NK2023} are defined in analogy with neural networks, but appends weight matrices in the hidden layers with additional linear integral operators acting on the input functions. Special cases of this framework includes Fourier neural network (FNO) \cite{ZL2021} in which the reliance on a Fourier basis limits the basic form of the FNO to periodic geometries, although, in that setting, use of fast Fourier transform (FFT) allows for efficient computations with total number of Fourier components limited by the grid resolution. Extension of FNO, called Neural Operator on Riemannian Manifold (NORM) \cite{GC2023}, generalizes FNO to use arbitrary orthogonal eigenfunctions of the Laplace-Beltrami operator on any given  spatial domain. The approach mentioned in the paper is closely related to low rank neural operator \cite{NK2023} which, however, has a more complicated architecture that proposed in this paper.
 
+\noindent In the paper author argued that universal approximation can be obtained in general geometries, with nonlocality along with nonlinearity. Nonlocality has been introduced using only a low-rank operator of fixed finite rank, and is not restricted to periodic domains.
 
+\noindent Fourier neural operators are already nonlocal and they introduce it via the addition of a nonlocal operator in each hidden layer layer, which acts on the Fourier modes of the input function by matrix multiplication. FNOs are generally implemented with a first layer which lifts the input, a scalar or vector-valued function, to a vector-valued function where the vector dimension (also called model width) is much higher than that of input function itself. It has been showed in literature that increasing the number of channels (model width) rather than to retain more Fourier modes in the architecture is more beneficial in certain circumstances \cite{SL2022}.
+
+\noindent The author has proposed a underlying framework to many neural operators called averaging neural operator (ANO). The ANO is build upon two minimal ingredients, nonlinearity by composition of shallow neural networks, and nonlocality via a spatial average. Author has deduced many universal approximation theorems for the ANO.
+
+\subsection{\bf Neural Operator}
+Let $\Omega \subset \bb R^d$ denote a bounded domain (or potentially a manifold) and let $\cal X(\Omega;\bb R^o)$,$\cal Y(\Omega;\bb R^o)$ and $\cal V(\Omega;\bb R^o)$ denote Banach spaces of $\bb R^o-$ valued functions over $\Omega$. The {\it nonlocal neural operator} (NNO) is defined as a mapping 
+$$ \Psi \colon \cal X(\Omega;\bb R^k) \to \cal Y(\Omega;\bb R^k)$$ 
+which can be written as composition of the form $\Psi = \cal Q \circ \cal L_L \circ \dots \cal L_1 \circ \cal R$ where $\cal R$ is lifting layer, $\cal L_l, l = 1, \dots L$ are hidden layers and $\cal Q$ is projection layer. Given a channel dimension $d_c$, the {\bf lifting layer} $\cal R$ and {\bf projection layer} $\cal Q$ are given by a mapping respectively:
+\begin{align}
+    \cal R \colon \cal X(\Omega;\bb R^k) & \to \cal V(\Omega;\bb R^{d_c}),~~~ u(x) \mapsto R(u(x),x), \\
+    \cal Q : \cal V(\Omega;\bb R^{d_c}) & \to \cal Y(\Omega;\bb R^{d_c}),~~~v(x) \mapsto Q(v(x),x)
+\end{align}
+where $R \colon \bb R^k \times \Omega \to \bb R^{d_c}$ and $Q : \bb R^{d_c} \times \Omega \to \bb R^{k'}$ are learnable neural network acting between finite dimensional Euclidean spaces. For $l = 1, \dots, L$ (the number of  {\bf hidden layers}) and for $m = 0, \dots, M$ (the number of modes) choose functions $\psi_{l,m},\phi_{l,m} \colon \Omega \to \bb R^{d_c}$. For $l = 1,\dots, L$, each hidden layer $\cal L_l$ is the mapping $\cal V(\Omega;\bb R^{d_c}) \to \cal V(\Omega;\bb R^{d_c})$ of the form:
+$$ (\cal L_lv)(x) := \sigma\left(W_lv(x) + b_l + \sum_{m=0}^M \langle T_{l,m}v,\psi_{l,m}\rangle_{L^2(\Omega;\bb R^{d_c})}\phi_{l,m}(x)\right) $$
+where
+\begin{enumerate}
+    \item $W_l,T_{l,m}\in \bb R^{d_c \times d_c}$ and bias $b_l \in \bb R^{d_c}$ are the learnable parameters/matices.
+    \item $\langle T_{l,m}v,\psi_{l,m}\rangle_{L^2(\Omega;\bb R^{d_c})}$ is a inner product in $L^2-$ function space. It measure the contribution of $\psi_{l,m}$ in $T_{l,m}$.
+\end{enumerate}
+\paragraph{\bf Note}
+\begin{enumerate}
+    \item The $L^2$ space is space of square integrable functions such that $L^2(\Omega;\bb R^{d_c}) := \left\{f\mid \int_{\Omega} \|f(x)\|^2 dx < \infty \right\}$.
+    \item The form of lifting and projection layer allows for {\it positional encoding}.
+    \item This general framework reduces to the FNO in a periodic geometry and if the expansion function are choosen as Fourier basis functions, indexed by $m$ and independent of $l$.
+\end{enumerate} 
+The central questions that author posses: ``which minimal assumptions have to be imposed on the expansion functions $\psi_{l,m}$ and $\phi_{l,m}$, to ensure universal approximation of the resulting architecture?''
+\paragraph{\bf Assumptions on activation function:}$\sigma :\bb R \to \bb R$ is assumed to be smooth, $\sigma \in C^{\infty}(\bb R)$, nonpolynomial and Lipschitz continuous. It acts as a Nemitskii-operator, component-wise on inputs.
+
+\section{\bf \large Averaging suffices for Universal Approximation}
+\noindent Author proposes a new architecture called averaging neural operator (ANO) and shows that only a simple averaging as nonlocality suffices for universality. The ANO is the subclass of many instantiations of general NNO architecture, and hence implies universality for general NNOs as corollaries.  
+\noindent When the domain is periodic, the resulting ANO becomes a special case of FNO when only zeroth Fourier mode is retained.
+
+\subsection{\bf Nonlinearity and Nonlocality}
+In case of ordinary neural networks, nonlinearity alone suffies for universality but in case of neural operators, it does not alone suffies. To support this, we have a following example: a neural network with a single layer give rise to nonlinear operator, which maps an input function to an output function by composition, 
+$$ u(x) \mapsto \sigma(Wu(x) + b).$$
+Despite being nonlinear, it can be shown that they are not universal. For example, such mappings are not able to approximate even simple operators $\Psi^\dag$ with a {\it nonlocal} dependence on the input, such as the shift operator $\Psi^\dag(u)(x) := u(x+h)$ for fixed $h \neq 0$. This shows the need of nonlocality.
+
+\subsection{\bf Averaging Neural Operator: a Special Subclass of the NNO}
+The author has defined a special subclass of the NNO, which combines nonlinearity by composition with nonlocality by averaging. We define a special subclass of hidden layers of the form:
+$$ \cal L : \cal V(\Omega;\bb R^{d_c}) \to \cal V(\Omega;\bb R^{d_c}),~~~ \cal L(v)(x) := \sigma\left(Wv(x) + b+ \fint_\Omega v(y) dy \right)$$
+
+\noindent The author has taken up the case of {\it single hidden layer} hence the following architecture:
+$$ \Psi:\cal V(\Omega;\bb R^{d_c}) \to \cal V(\Omega;\bb R^{d_c}),~~~ \Psi(u) = \cal Q \circ \cal L \circ \cal R(u),$$
+where lifting and projection maps $\cal R$ and $\cal Q$ are given as in above equations with $R$ and $Q$ be single-hidden layer neural networks respectively of width $d_c$. 
+\paragraph{\bf Parameters of ANO} Due to its minimal structure, the ANO depends on only one {\it hyperparameter;} the lifting dimension $d_c$. The {\it tunable parameters} of ANO are represented by the weight matrix $W \in \bb R^{d_c\times d_c}$ and bias $b \in \bb R^{d_c}$ in the hidden layer $\cal L$, and the internal weights and biases of the ordinary neural network $R$ and $Q$ defined in lifting and projection layers, respectively.
+
+\subsection{\bf Universal Approximation}
+\begin{thm}
+    Let $\Omega$
+\end{thm}
+
+\bibliographystyle{plainnat}
+\bibliography{ref}
 \end{document}
