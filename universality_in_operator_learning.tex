@@ -103,7 +103,9 @@ Despite being nonlinear, it can be shown that they are not universal. For exampl
 
 \subsection{\bf Averaging Neural Operator: a Special Subclass of the NNO}
 The author has defined a special subclass of the NNO, which combines nonlinearity by composition with nonlocality by averaging. We define a special subclass of hidden layers of the form:
-$$ \cal L : \cal V(\Omega;\bb R^{d_c}) \to \cal V(\Omega;\bb R^{d_c}),~~~ \cal L(v)(x) := \sigma\left(Wv(x) + b+ \fint_\Omega v(y) dy \right)$$
+\begin{equation}\label{1}
+    \cal L : \cal V(\Omega;\bb R^{d_c}) \to \cal V(\Omega;\bb R^{d_c}),~~~ \cal L(v)(x) := \sigma\left(Wv(x) + b+ \fint_\Omega v(y) dy \right)
+\end{equation}
 
 \noindent The author has taken up the case of {\it single hidden layer} hence the following architecture:
 $$ \Psi:\cal V(\Omega;\bb R^{d_c}) \to \cal V(\Omega;\bb R^{d_c}),~~~ \Psi(u) = \cal Q \circ \cal L \circ \cal R(u),$$
@@ -112,9 +114,56 @@ where lifting and projection maps $\cal R$ and $\cal Q$ are given as in above eq
 
 \subsection{\bf Universal Approximation}
 \begin{thm}
-    Let $\Omega$
+    Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s' \geq 0$ let $\Psi : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be continuous operator, and fix a compact set $K \subset C^s(\overline{\Omega};\bb R^k)$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi : K \subset C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ such that 
+    $$ \sup\limits_{u \in K}\|\Psi^\dag (u) - \Psi(u)\|_{C^{s'}} \leq \epsilon.$$ 
 \end{thm}
+The above result is in the space of continuously differentiable functions. Author also has a corresponding result in the scale of Sobolov spaces $W^{s,p}$:
+\begin{thm}
+    Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s'\geq 0$, and reals $p,p' \in [1,\infty)$, let $\Psi^\dag: W^{s,p}(\Omega;\bb R^k) \to W^{s',p'}(\Omega;\bb R^{k'})$ be a continuous operator. Fix a compact set $K \subset W^{s,p}(\Omega;\bb R^k)$ of bounded functions, $\sup_{u \in K}\|u\|_{L^\infty} < \infty$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi:W^{s,p}(\Omega;\bb R^k) \to W^{s',p'}(\Omega;\bb R^{k'})$ such that 
+    $$ \sup\limits_{u\in K}\|\Psi^\dag(u) - \Psi(u)\|_{W^{s',p'}} \leq \epsilon.$$
+\end{thm}
+The consequences of the results is that any more general NNP architecture hidden layers of the form (\ref{1}), is universal as long as an average can be represented; then the resulting NNO reduces to ANO with a specific setting of tunable weights (by setting certain parameters to zero).
+\begin{rem}
+    Above two theorem show that ANO is universal i approximating a large class of operators, uniformly over a compact set of input functions $K$. But in practice, neural operators are trained by minimizing an empirical loss:
+    $$ \cal L(\Psi) = \frac{1}{N} \sum\limits_{n=1}^{N} \|\Psi^\dag(u_n) - \Psi(u_n)\|^2_{W^{s',p'}(\Omega)},~~~~u_1, \dots u_N \sim \mu,$$
+    where data are iid random samples form an underlying input probability measure $\mu$. A popular choice is sampling input function from a Gaussian random field. In this case, the set of input functions is no longer bounded, and hence not compact.
 
+    \noindent In this case when $\mu$ does not have a compact support, we can derive these results with a cut-off argument. For given $\epsilon > 0$, it is possible to show that the existence of $\Psi$, such that 
+    $$ \bb E_{u\sim\mu}[\|\Psi(u) - \Psi^\dag(u)\|^2_{W^{s',p'}}] < \epsilon.$$
+\end{rem}
+\subsection{Intuition}
+\paragraph{\bf Encoder-Decoder Structure} The ANO architecture has hidden encoder-decoder structure. This structure can be obtained when setting the matrix $W$ and bias $b$ in the hidden layer (\ref{1}) zero, in which case we note that the mapping $\cal L \circ \cal R : \cal X \to \bb R^{d_c}, u \mapsto \cal L \circ \cal R(u)$ can be though of as a nonlinear encoding of the input function and encode it to a (constant) vector $v \in \bb R^{d_c}$ while the projection mapping that takes $v \mapsto Q(v,.)$ is a nonlinear decoding of the corresponding output function $\Psi^\dag(u) = Q(u,x)$.
+
+\paragraph{\bf The Role of Positional Encoding}
+Author has argued that some positional encoding (``explicit $x$-dependence'') is necessary for universality. Positional encoding helps in breaking translational equivariance i.e. FNO $\Psi$ does not commute with the shift operator. Breaking translational equivariance is necessary because the PDEs with non-constant coefficients have solution operator which are non-translational equivariant. There is one more way to break translational equivariance that is to have bias function dependent on $x, b = b(x)$. It was used in previous work by the author \cite{NK2021} but in practice positional encoding is explicitly added in the input layer $\cal R$.
+
+\noindent Explicit $x$-dependence in the output layer is not necessary since there are pointwise matrix multiplications involved in the hidden layers and they provide a mechanism (same as ``skip connections'') to forward positional encoding information to the output layer.
+
+\begin{rem}[Skip Connections]
+    Skipping connections basically means bypass one or more layer of the neural network. It adds the output of layer($l$) to the output of layer($l+n$):
+    $$ y = F(x) + x$$
+    where:
+    \begin{itemize}
+        \item $x$ is the input.
+        \item $F(x)$ is the transformation applied to skip layer(s).
+        \item $y$ is the output after the skip.
+    \end{itemize}
+\end{rem}
+\subsection{Sketch of the Proof of Universality}
+For the sake of completeness, theorem statement has been stated again below:
+\begin{thm}
+    Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s' \geq 0$ let $\Psi : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be continuous operator, and fix a compact set $K \subset C^s(\overline{\Omega};\bb R^k)$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi : K \subset C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ such that 
+    $$ \sup\limits_{u \in K}\|\Psi^\dag (u) - \Psi(u)\|_{C^{s'}} \leq \epsilon.$$ 
+\end{thm}
+\paragraph{\bf Explanation and definition of terms:}
+\paragraph{\bf Lipschitz Domain}
+$\Omega \subset \bb R^d$ is a bounded Lipschitz domain and $\overline{\Omega}$ is compact (Heine-Borel theorem). The boundary $\delta\Omega = \overline{\Omega}\backslash\Omega$ is at least ``Lipschitz regular''(locally it is the graph of a Lipschitz function). In particular, any bounded domain with piecewise smooth boundary is a Lipschitz domain.
+
+\paragraph{\bf Function Extension for Lipschitz Domains}
+We will be using this extension property in the proof. Given a function $u : \Omega \to \bb R$, defined on a domain $\Omega \subset \bb R^d$, to a function $u :\bb R^d \to \bb R$, defined on all of $\bb R^d$. The following lemma shows that this is possible, while preserving smoothness of $u$.
+\begin{lem}[Periodic extension operator]
+    Let $\Omega \subset \bb R^d$ be a bounded Lipschitz domain. There exists a continuous, linear operator $\cal E : W^{s,p}(\Omega) \to W_{per}^(s,p)(B)$ for any $s \geq 0$ and $p \in [1,\infty],$ where $B \subset \bb R^d$ is a bounded hypercube containing $\Omega \subset B$, such that for any $u \in W^{s,p}(\Omega)$:
+\end{lem}
 \bibliographystyle{plainnat}
 \bibliography{ref}
 \end{document}
