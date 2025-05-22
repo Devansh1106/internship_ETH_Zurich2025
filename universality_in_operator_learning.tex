@@ -161,8 +161,31 @@ $\Omega \subset \bb R^d$ is a bounded Lipschitz domain and $\overline{\Omega}$ i
 
 \paragraph{\bf Function Extension for Lipschitz Domains}
 We will be using this extension property in the proof. Given a function $u : \Omega \to \bb R$, defined on a domain $\Omega \subset \bb R^d$, to a function $u :\bb R^d \to \bb R$, defined on all of $\bb R^d$. The following lemma shows that this is possible, while preserving smoothness of $u$.
-\begin{lem}[Periodic extension operator]
+\begin{lem}[A1][Periodic extension operator]
     Let $\Omega \subset \bb R^d$ be a bounded Lipschitz domain. There exists a continuous, linear operator $\cal E : W^{s,p}(\Omega) \to W_{per}^(s,p)(B)$ for any $s \geq 0$ and $p \in [1,\infty],$ where $B \subset \bb R^d$ is a bounded hypercube containing $\Omega \subset B$, such that for any $u \in W^{s,p}(\Omega)$:
+    \begin{enumerate}
+        \item $\cal E(u)\mid_\Omega = u;$
+        \item $\cal E(u) \in W^{s,p}_{per}(B)$ is periodic on $B$ (including it's derivatives).
+    \end{enumerate}
+    Furthermore, $\cal E$ maps continuously differentiable functions to continuously differentiable functions, i.e. $\cal E(C^s(\overline{\Omega})) \subset C^s_{per}(B)$ and hence defines a continuous mapping $\cal E: C^s(\overline{\Omega}) \to C^s_{per}(B)$.
+\end{lem}
+\begin{rem}
+    An operator $A$ is said to be continuous if it preserves the limit i.e. if a sequence $\{x_n\}$ converges to the limit $x$ then we have $Ax_n \to Ax$. For linear operator between normed spaces, continuity is equivalent to boundedness.
+\end{rem}
+\paragraph{\bf Mollification (Smoothing) of Functions om Lipschitz Domains}
+There exists a smooth mapping (a mollifier) $\rho : \bb R^d \to \bb R$, with the properties $p(x) \in [0,1]$ for all $x \in \bb R^d$.
+$$
+\rho(x) = \begin{cases}
+    =1, &\text{if $x=0$}\\
+    =0, &\text{if $|x| \geq 1$}\\
+    \in [0,1], &\text{if $0 < x < 1$}
+\end{cases}
+$$
+Normalization of $\rho$ can be done so that $\int_{\bb R^d} \rho(y)dy = 1$. With any such $\rho$, we can define a family of functions $\rho_{\delta} := \delta^{-d}\rho(x/\delta)$, with support in a $\delta-$ball around origin. Fixing such a family, $\epsilon$-mollification of a function $u : \bb R^d \to \bb R, u \in L^1(\bb R^d)$ is defined by a convolution $u_{\delta}(x):= (u*\rho_\delta)(x),$ i.e. 
+$$ u_\delta(x) := \int_{\bb R^d} u(x-y)\rho_\delta(y)dy.$$
+$u_\delta$ is smooth function for $\delta>0$ (by lemma \ref{2}) and that 
+\begin{lem}\label{2}
+    If $g \in C^\infty_c(\bb R^n)$ and %understand R proof and then extend it to R^n and then write that here.
 \end{lem}
 \bibliographystyle{plainnat}
 \bibliography{ref}
