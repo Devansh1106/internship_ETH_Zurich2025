@@ -161,7 +161,7 @@ $\Omega \subset \bb R^d$ is a bounded Lipschitz domain and $\overline{\Omega}$ i
 
 \paragraph{\bf Function Extension for Lipschitz Domains}
 We will be using this extension property in the proof. Given a function $u : \Omega \to \bb R$, defined on a domain $\Omega \subset \bb R^d$, to a function $u :\bb R^d \to \bb R$, defined on all of $\bb R^d$. The following lemma shows that this is possible, while preserving smoothness of $u$.
-\begin{lem}[A1][Periodic extension operator]
+\begin{lem}[A.1][Periodic extension operator]
     Let $\Omega \subset \bb R^d$ be a bounded Lipschitz domain. There exists a continuous, linear operator $\cal E : W^{s,p}(\Omega) \to W_{per}^(s,p)(B)$ for any $s \geq 0$ and $p \in [1,\infty],$ where $B \subset \bb R^d$ is a bounded hypercube containing $\Omega \subset B$, such that for any $u \in W^{s,p}(\Omega)$:
     \begin{enumerate}
         \item $\cal E(u)\mid_\Omega = u;$
@@ -187,6 +187,37 @@ $u_\delta$ is smooth function for $\delta>0$ (by lemma \ref{2}) and that
 \begin{lem}\label{2}
     If $g \in C^\infty_c(\bb R^n)$ and %understand R proof and then extend it to R^n and then write that here.
 \end{lem}
+\begin{lem}[A.2](Adapted mollification in a Lipschitz domain) \label{A.2}
+    Let $\Omega \subset \bb R^d$ be a bounded Lipschitz domain. There exists a one-parameter family $\cal M_\delta$ of ``mollification'' operators, indexed by $\delta \geq 0$ and defining a linear mapping $\cal M_\delta :L^1(\Omega;\bb R^k) \to L^1(\Omega; \bb R^k)$ for $\delta > 0$, such that:
+    \begin{enumerate}
+        \item For $\delta = 0$, we have $\cal M_0u = u$ for all $u \in L^1(\Omega \bb R^k)$; for $\delta > 0$, $\cal M_\delta$ is smoothing, in the sense that it defines a mapping $\cal M_\delta :L^1(\Omega;\bb R^k)\to C^\infty(\overline{\Omega};\bb R^k)$.
+        \item For any fixed $\delta > 0$, integer $s,r \geq 0$, the mapping, $$ \cal M_\delta : C^s(\overline{\Omega};\bb R^k) \to C^r(\overline{\Omega};\bb R^k),$$ is continuous. Furthermore, if $r \leq s$, then the operator norm is uniformly bounded, that is $$\sup\limits_{\delta>0} \|\cal M_\delta\|_{C^s \to C^r} < \infty.$$
+        \item If $s \geq 0$ and $K \subset C^s(\overline{\Omega};\bb R^k)$ is a compact subset, then for any $\delta_0 \geq 0$, $$ \lim_{\delta \to \delta_0} \sup_{u \in K} \|\cal M_{\delta_0} u - \cal M_\delta u\|_{C^s} = 0$$.
+        \item For fixed $\delta > 0$, integer $s,r \geq 0$, and $p \in [1,\infty)$, the mapping $$\cal M_\delta : W^{s,p}(\Omega;\bb R^k) \to W^{r,p}(\Omega;\bb R^k)$$ is continuous.
+        \item If $s \geq 0, p \in [1, \infty)$ and $K \subset W^{s,p}(\Omega;\bb R^k)$ is a compact subset, and $\delta_0 \geq 0$, then $$ \lim_{\delta \to \delta_0}\sup_{u \in K}\|\cal M_{\delta_0}u - \cal M_\delta u\|_{W^{s,p}} = 0.$$
+    \end{enumerate}
+\end{lem}
+\begin{lem}[A.4]
+    Fix $s \geq 0$. Let $K \subset C^s(\overline{\Omega};\bb R^k)$ be compact. Then for any $\delta > 0$, the set 
+    $$ K_\delta := \bigcup\limits_{0\leq \delta' \leq \delta} \{\cal M_{\delta'}u \mid u\in K\},$$
+    is also compact in $C^s(\overline{\Omega};\bb R^k).$
+\end{lem}
+\begin{proof}
+    Since $C^s(\overline{\Omega};\mathbb{R}^k)$ is a normed space with respect to $C^s$ norm, it will be metric space with respect to induced metric from norm. Hence, it is enough to show that subset $K_\delta$ is sequentially compact.
+
+    Let $v_1, v_2, \dots$ be an arbitrary sequence in $K_\delta$. It suffices to show that $v_j$ posses a convergent subsequence $v_{j_l} \to v \in K_\delta$. By definition, there exist a sequence $u_j \in K$ and $\delta_j \in (0,\delta]$ such that $\cal M_{\delta_j}u_j = v_j$ for all $j \in \bb N$. Since, $K$ is compact, there exists a convergent subsequence $u_{j_l} \to u \in K$. Furthermore, we may assume that $\delta_{l_j} \to \delta_\infty \in [0,\delta]$ converges to a limit. (but we need to show its convergence. TODO.) Let $v := M_{\delta_\infty}u$ and $v \in K_\delta$. We claim that $v_{j_l} \to v$. 
+    $$ \begin{aligned}
+        \limsup\limits_{l \to \infty} \|v_{j_l} - v\|_{C^s} &= \limsup\limits_{l \to \infty} \|\cal M_{\delta_{j_l}}u_{j_l} - \cal M_{\delta_{\infty}}u\|_{C^s}\\
+        (\text{$u \in C^s$ is fixed}) &=  \limsup\limits_{l \to \infty} \|\cal M_{\delta_{j_l}}u_{j_l} - \cal M_{\delta_{j_l}}u + \cal M_{\delta_{j_l}}u - \cal M_{\delta_{\infty}}u\|_{C^s} \\
+        &\leq \limsup\limits_{l \to \infty} \|\cal M_{\delta_{j_l}}u_{j_l} - \cal M_{\delta_{j_l}}u\|_{C^s} + \limsup\limits_{l \to \infty} \|\cal M_{\delta_{j_l}}u - \cal M_{\delta_{\infty}}u\|_{C^s} \\
+        &= \limsup\limits_{l \to \infty} \|\cal M_{\delta_{j_l}}\|_{C^s \to C^s} \|u_{j_l} - u\|_{C^s}\\ &\qquad\qquad+ \limsup\limits_{l \to \infty} \|\cal M_{\delta_{j_l}}u - \cal M_{\delta_{\infty}}u\|_{C^s}
+    \end{aligned}
+    $$
+    From Lemma \ref{A.2} (part $3$), we can say second part converges to $0$. Again from Lemma \ref{A.2} (part $2$), $\cal M_\delta$ is uniformly bounded 
+    $$ \sup_{l\in \bb N}\|\cal M_{\delta_{j_l}}\|_{C^s \to C^s} \leq \sup_{0 \leq \delta' \leq \delta}\|\cal M_{\delta'}\|_{C^s \to C^s} < \infty $$ (why so? since $\delta_j \in (0,\delta])$; $\delta_{j_l}$ is the subsequence of $\delta_j$ and if the subsequence has the supremum of whole interval $[0,\delta]$ then its equality otherwise it has to be less than because supremum is taken in whole $[0,\delta]$. Also, since $K$ is compact, $u_{j_l} \to u$ which implies first part also tends to $0$. Hence, we have $v_{j_l} \to v$ and $K_\delta$ is sequentially compact hence compact. 
+\end{proof}
+\paragraph{\bf Universal Approximation Of Neural Networks}
+From [\cite{AP1999}, Thm. 4.1], neural network architecture is universal in the class of $C^s$- function between Euclidean vector spaces ($C^s(\bb R^n; \bb R^m)$) when the activation function $\sigma$ is nonpolynomial and sufficiently smooth, $\sigma \in C^s$. This implies universality of neural networks in Sobolev spaces $W^{s,p}$ of functions between Euclidean vector spaces. (Why? TODO).
 \bibliographystyle{plainnat}
 \bibliography{ref}
 \end{document}
