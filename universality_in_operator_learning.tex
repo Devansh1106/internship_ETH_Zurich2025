@@ -218,6 +218,15 @@ $u_\delta$ is smooth function for $\delta>0$ (by lemma \ref{2}) and that
 \end{proof}
 \paragraph{\bf Universal Approximation Of Neural Networks}
 From [\cite{AP1999}, Thm. 4.1], neural network architecture is universal in the class of $C^s$- function between Euclidean vector spaces ($C^s(\bb R^n; \bb R^m)$) when the activation function $\sigma$ is nonpolynomial and sufficiently smooth, $\sigma \in C^s$. This implies universality of neural networks in Sobolev spaces $W^{s,p}$ of functions between Euclidean vector spaces. (Why? TODO).
+\begin{lem}[A.5] TODO
+\end{lem}
+\begin{proof}
+    TODO
+\end{proof}
+\paragraph{\bf A Dense Subset Of Operators}
+In order to prove universal approximation for averaging neural operator is the fact that it is possible to reduce the problem for general operator $\Psi^\dag :C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})($or $\Psi^\dag :W^{s,p}(\overline{\Omega};\bb R^k) \to W^{s',p'}(\overline{\Omega};\bb R^{k'}$, respectively), to a simple class of operators which can be written in the form,
+$$ \tilde{\Psi}^\dag(u) = \sum\limits_{j=1}^{J}\alpha_j(u)\eta_j,$$
+where $\eta_1,\dots,\eta_j$ are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. in $W^{s',p'}(\overline{\Omega};\bb R^{k'})$), and $\alpha_1,\dots,\alpha_J:L^1(\Omega;\bb R^k) \to \bb R$ are continuous nonlinear functionals, defined on the space of integrable functions.
 \bibliographystyle{plainnat}
 \bibliography{ref}
 \end{document}
