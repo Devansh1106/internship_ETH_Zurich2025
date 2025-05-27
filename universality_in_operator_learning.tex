@@ -68,6 +68,7 @@
 
 \noindent The author has proposed a underlying framework to many neural operators called averaging neural operator (ANO). The ANO is build upon two minimal ingredients, nonlinearity by composition of shallow neural networks, and nonlocality via a spatial average. Author has deduced many universal approximation theorems for the ANO.
 
+\paragraph{\bf What does it mean that a neural network is universal?} Let $\sigma:\bb R \to \bb R$ be continuous, $d,L \in \bb N$ and $K \subset \bb R^d$ be compact. Denote by MLP$(\sigma, d, L)$ the set of all MLPs with $d$- dimensional input, $L$ layers, and activation function $\sigma$. We say that MLP$(\sigma, d, L)$ is universal, if MLP$(\sigma, d,L)$ is dense in $C(K)$.
 \subsection{\bf Neural Operator}
 Let $\Omega \subset \bb R^d$ denote a bounded domain (or potentially a manifold) and let $\cal X(\Omega;\bb R^o)$,$\cal Y(\Omega;\bb R^o)$ and $\cal V(\Omega;\bb R^o)$ denote Banach spaces of $\bb R^o-$ valued functions over $\Omega$. The {\it nonlocal neural operator} (NNO) is defined as a mapping 
 $$ \Psi \colon \cal X(\Omega;\bb R^k) \to \cal Y(\Omega;\bb R^k)$$ 
