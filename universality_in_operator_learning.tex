@@ -31,6 +31,7 @@
 \renewcommand{\qedsymbol}{$\blacksquare$}
 \newtheorem{thm}{Theorem}
 \newtheorem{lem}{Lemma}
+\newtheorem{prop}{Proposition}
 \theoremstyle{definition}
 \newtheorem{defn}{Definition}
 \newtheorem{eg}{Example}
@@ -150,19 +151,14 @@ Author has argued that some positional encoding (``explicit $x$-dependence'') is
         \item $y$ is the output after the skip.
     \end{itemize}
 \end{rem}
-\subsection{Sketch of the Proof of Universality}
-For the sake of completeness, theorem statement has been stated again below:
-\begin{thm}
-    Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s' \geq 0$ let $\Psi : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be continuous operator, and fix a compact set $K \subset C^s(\overline{\Omega};\bb R^k)$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi : K \subset C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ such that 
-    $$ \sup\limits_{u \in K}\|\Psi^\dag (u) - \Psi(u)\|_{C^{s'}} \leq \epsilon.$$ 
-\end{thm}
+
 \paragraph{\bf Explanation and definition of terms:}
 \paragraph{\bf Lipschitz Domain}
 $\Omega \subset \bb R^d$ is a bounded Lipschitz domain and $\overline{\Omega}$ is compact (Heine-Borel theorem). The boundary $\delta\Omega = \overline{\Omega}\backslash\Omega$ is at least ``Lipschitz regular''(locally it is the graph of a Lipschitz function). In particular, any bounded domain with piecewise smooth boundary is a Lipschitz domain.
 
 \paragraph{\bf Function Extension for Lipschitz Domains}
 We will be using this extension property in the proof. Given a function $u : \Omega \to \bb R$, defined on a domain $\Omega \subset \bb R^d$, to a function $u :\bb R^d \to \bb R$, defined on all of $\bb R^d$. The following lemma shows that this is possible, while preserving smoothness of $u$.
-\begin{lem}[A.1][Periodic extension operator]
+\begin{lem}[A.1][Periodic extension operator]\label{A.1}
     Let $\Omega \subset \bb R^d$ be a bounded Lipschitz domain. There exists a continuous, linear operator $\cal E : W^{s,p}(\Omega) \to W_{per}^(s,p)(B)$ for any $s \geq 0$ and $p \in [1,\infty],$ where $B \subset \bb R^d$ is a bounded hypercube containing $\Omega \subset B$, such that for any $u \in W^{s,p}(\Omega)$:
     \begin{enumerate}
         \item $\cal E(u)\mid_\Omega = u;$
@@ -225,9 +221,42 @@ From [\cite{AP1999}, Thm. 4.1], neural network architecture is universal in the 
     TODO
 \end{proof}
 \paragraph{\bf A Dense Subset Of Operators}
-In order to prove universal approximation for averaging neural operator is the fact that it is possible to reduce the problem for general operator $\Psi^\dag :C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})($or $\Psi^\dag :W^{s,p}(\overline{\Omega};\bb R^k) \to W^{s',p'}(\overline{\Omega};\bb R^{k'}$, respectively), to a simple class of operators which can be written in the form,
+In order to prove universal approximation for averaging neural operator,we ned to use the fact that it is possible to reduce the problem for general operator $\Psi^\dag :C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})($or $\Psi^\dag :W^{s,p}(\overline{\Omega};\bb R^k) \to W^{s',p'}(\overline{\Omega};\bb R^{k'}$, respectively), to a simple class of operators which can be written in the form,
 $$ \tilde{\Psi}^\dag(u) = \sum\limits_{j=1}^{J}\alpha_j(u)\eta_j,$$
-where $\eta_1,\dots,\eta_j$ are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. in $W^{s',p'}(\overline{\Omega};\bb R^{k'})$), and $\alpha_1,\dots,\alpha_J:L^1(\Omega;\bb R^k) \to \bb R$ are continuous nonlinear functionals, defined on the space of integrable functions.
+where $\eta_j$'s are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. in $W^{s',p'}(\overline{\Omega};\bb R^{k'})$), and $\alpha_1,\dots,\alpha_J:L^1(\Omega;\bb R^k) \to \bb R$ are continuous nonlinear functionals, defined on the space of integrable functions. The following proposition summarizes this fact.
+\begin{prop}[A.6]
+    Let $\Psi^\dag : C^s(\Omega;\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be a continuous operator. Let $K \subset C^s(\overline{\Omega}'\bb R^k)$ be a compact subset. Then for any $\epsilon > 0$, there exist $J \in \bb N$, functions $\eta_1,\dots \eta_J \in C^{s'}(\overline{\Omega};\bb R^k)$, and continuous functionals $\alpha_1, \dots, \alpha_J:L^1(\Omega;\bb R^k) \to \bb R$, such that the operator $\tilde{\Psi}^\dag : L^1(\Omega;\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'}), \tilde{\Psi}^\dag(u) := \sum\limits_{j=1}^{J}\alpha_j(u)\eta_j$, satisfies
+    $$ \sup\limits_{u \in K}\|\Psi^\dag(u) - \tilde{\Psi}^\dag(u)\|_{C^{s'}} \leq \epsilon$$
+\end{prop}
+\begin{rem}
+    We note that the underline operator $\Psi^\dag(u)$ is only defined for $u \in C^s(\Omega;\bb R^k),$ and will generally not possess anycontinuous extension to an operator defined $u \in L^1(\Omega;\bb R^k)$. But the operator constructed in the above expression $\tilde{\Psi}^\dag : L^1(\Omega;\bb R^k) \to C^{s'}(\Omega;\bb R^{k'})$ when restricted to compact $K \subset C^s(\overline{\Omega};\bb R^k)$ provides a good approximation of $\Psi^\dag |_K$.
+\end{rem}
+\begin{proof}
+    It can be easily shown that $C^{s'}(\Omega;\bb R^k) \simeq [C^{s'}(\Omega;\bb R)]^k$ are homeomorphic where the homeomorphism can be $u(x) \mapsto (u_1(x), \dots, u_k(x))$ since $[C^{s'}(\Omega;\bb R)]^k$ is $k$-length tuples of scalar real valued functions, and thus it will suffice to approximate each component of the mapping $\Psi^\dag : C^s(\overline{\Omega};\bb R^k) \to [C^{s'}(\Omega;\bb R)]^k$, individually. The $j$-th component defines the mapping $\Psi^\dag_j : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R)$. 
+
+    \paragraph{\bf Step 1:(construction of $\eta_1, \dots, \eta_j)$} We are going to show that the $L^2$-orthogonal (real) Fourier sine/cosine basis is a good choice for $\eta's$. Consider $K':= \Psi^\dag(K) \subset C^{s'}(\overline{\Omega})$ for compact $K$ which implies $K'$ is also compact. Let $B \supset \Omega$ be a bounding box, containing $\overline{\Omega}$ in its interior. By Lemma $\ref{A.1}$, there exists a continuous extension mapping
+    $$ \cal E : C^{s'}(\Omega) \to C^{s'}_{per}(B),$$
+    where $C^{s'}_{per}(B)$ denotes the space of continuously differentiable functions $w : B \to \bb R$ on the Cartesian domain $B$, having periodic derivates up to order $s'$. Since $K' \subset C^{s'}(\overline{\Omega})$ is compact, it follows $K^{'}_{per} := \cal E (K^{'})$ is also compact subset of $C^{s'}_{per}(B)$ (continuous image of a compact set). Since functions are periodic, we can identify $B \simeq \bb T^d$ with the periodic torus in a natural way. Let $\eta_1, \eta_2, \dots$ denote an enumeration of the $L^2$-orthogonal (real) Fourier sine/cosine basis in $L^2_per(B)$. Fix $\delta > 0$, and let $w_\delta : B \to \bb R$ be the standard mollification of the periodic function $w : B \to \bb R$. Since $K^{'}_{per} \subset C^{s'}_{per}(B)$ is compact, the set $\{w_\delta \mid w \in K_{per}^{'} \}$ is uniformly bounded in the $C^{r'}$-norm for any given $r' > s'$. In particular, it can be shown that approximation by Fourier series converges uniformly over $\{w_\delta \mid w \in K^{'})_{per}\}$, i.e. 
+    $$ \lim\limits_{J \to \infty} \sup\limits_{w \in K^{'}_{per}}\left\| w_\delta - \sum_{j=1}^J \langle w_\delta,\eta_j\rangle_{L^2}\eta_j\right\|_{C^{s'}_{per}(B)} = 0$$
+    Furthur, $\lim_{\delta \to 0} \|w_\delta - w\|_{C^{s'}} = 0$ (\ref{A.2}, part 3), uniformly over $K^{'}_{per}$. In particular, given $\epsilon > 0$, we can find $\delta = \delta(\epsilon) > 0$, such that $\sup_{w \in K^{'}_{per}}\|w_\delta - w\|_{C^{s'}} \leq \epsilon/2$, and then $J \in \bb N$, such that $\sup_{w \in K^{'}_{per}} \left\|\sum_{j=1}^J \langle w_\delta,\eta_j\rangle_{L^2}\eta_j\right\|_{C^{s'}_{per}(B)} \leq \epsilon/2$. It's straight forward follows from triangle inequality that
+    $$ \sup\limits_{w \in K^{'}_{per}} \left\|w - \sum_{j=1}^J \langle w_\delta,\eta_j\rangle_{L^2}\eta_j\right\|_{C^{s'}_{per}(B)} \leq \epsilon. $$ This defines the choices of $\eta_1, \dots, \eta_J$. Note that we have the identity
+    $$ \sum\limits_{j=1}^{J}\langle w_\delta,\eta_j\rangle_{L^2} = \sum\limits_{j=1}^{J}\langle w,\eta_{j,\delta}\rangle_{L^2}.$$
+    Since $\Omega \subset B,$ and $\cal E$ is an extension operator, so that $\cal E(v)|_{\Omega} = v$ for all $v \in K'$. Furthurmore, we have $K'_{per} = \cal E(K')$ and $K' = \Psi^\dag(K),$ by definition. It follows that after using above identify,
+    $$
+    \begin{aligned}
+    \sup\limits_{u \in K} \|\Psi^\dag(u) - \sum_{j=1}^{J} \langle \cal E (\Psi^\dag(u)),\eta_{j,\delta} \rangle_{L^2} \eta_j \|_{C^{s'}}&(\overline{\Omega}) = \sup\limits_{v \in K'} \left\|v - \sum_{j=1}^{J} \langle \cal E (v),\eta_{j,\delta} \rangle_{L^2} \eta_j \right\|_{C^{s'}(\overline{\Omega})} \\
+    \text{ (property of extension operator) } \hspace{3em}&= \sup\limits_{v \in K'} \left\|\cal E(v) - \sum_{j=1}^{J} \langle \cal E (v),\eta_{j,\delta} \rangle_{L^2} \eta_j \right\|_{C^{s'}(\overline{\Omega})} \\
+    \because C^{s'}_{per}(B) \subset C^{s'}(\overline{\Omega}) \hspace{3.4em} &\leq \sup\limits_{v \in K'} \left\|\cal E(v) - \sum_{j=1}^{J} \langle \cal E (v),\eta_{j,\delta} \rangle_{L^2} \eta_j \right\|_{C^{s'}_{per}(B)} \\
+    K'_{per} = \cal E (K') \hspace{3.4em}&= \sup\limits_{w \in K'_{per}} \left\|w - \sum_{j=1}^{J} \langle w,\eta_{j,\delta} \rangle_{L^2} \eta_j \right\|_{C^{s'}_{per}(B)} \\ &\leq \epsilon
+    \end{aligned}
+    $$
+\end{proof}
+\subsection{Sketch of the Proof of Universality}
+For the sake of completeness, theorem statement has been stated again below:
+\begin{thm}
+    Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s' \geq 0$ let $\Psi : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be continuous operator, and fix a compact set $K \subset C^s(\overline{\Omega};\bb R^k)$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi : K \subset C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ such that 
+    $$ \sup\limits_{u \in K}\|\Psi^\dag (u) - \Psi(u)\|_{C^{s'}} \leq \epsilon.$$ 
+\end{thm}
 \bibliographystyle{plainnat}
 \bibliography{ref}
 \end{document}
