@@ -194,7 +194,7 @@ $u_\delta$ is smooth function for $\delta>0$ (by lemma \ref{2}) and that
         \item If $s \geq 0, p \in [1, \infty)$ and $K \subset W^{s,p}(\Omega;\bb R^k)$ is a compact subset, and $\delta_0 \geq 0$, then $$ \lim_{\delta \to \delta_0}\sup_{u \in K}\|\cal M_{\delta_0}u - \cal M_\delta u\|_{W^{s,p}} = 0.$$
     \end{enumerate}
 \end{lem}
-\begin{lem}[A.4]
+\begin{lem}[A.4]\label{A.4}
     Fix $s \geq 0$. Let $K \subset C^s(\overline{\Omega};\bb R^k)$ be compact. Then for any $\delta > 0$, the set 
     $$ K_\delta := \bigcup\limits_{0\leq \delta' \leq \delta} \{\cal M_{\delta'}u \mid u\in K\},$$
     is also compact in $C^s(\overline{\Omega};\bb R^k).$
@@ -234,7 +234,7 @@ where $\eta_j$'s are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. i
 \begin{proof}
     It can be easily shown that $C^{s'}(\Omega;\bb R^k) \simeq [C^{s'}(\Omega;\bb R)]^k$ are homeomorphic where the homeomorphism can be $u(x) \mapsto (u_1(x), \dots, u_k(x))$ since $[C^{s'}(\Omega;\bb R)]^k$ is $k$-length tuples of scalar real valued functions, and thus it will suffice to approximate each component of the mapping $\Psi^\dag : C^s(\overline{\Omega};\bb R^k) \to [C^{s'}(\Omega;\bb R)]^k$, individually. The $j$-th component defines the mapping $\Psi^\dag_j : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R)$. 
 
-    \paragraph{\bf Step 1:(construction of $\eta_1, \dots, \eta_j)$} We are going to show that the $L^2$-orthogonal (real) Fourier sine/cosine basis is a good choice for $\eta's$. Consider $K':= \Psi^\dag(K) \subset C^{s'}(\overline{\Omega})$ for compact $K$ which implies $K'$ is also compact. Let $B \supset \Omega$ be a bounding box, containing $\overline{\Omega}$ in its interior. By Lemma $\ref{A.1}$, there exists a continuous extension mapping
+    \paragraph{\bf Step 1: (construction of $\eta_1, \dots, \eta_j)$} We are going to show that the $L^2$-orthogonal (real) Fourier sine/cosine basis is a good choice for $\eta's$. Consider $K':= \Psi^\dag(K) \subset C^{s'}(\overline{\Omega})$ for compact $K$ which implies $K'$ is also compact. Let $B \supset \Omega$ be a bounding box, containing $\overline{\Omega}$ in its interior. By Lemma $\ref{A.1}$, there exists a continuous extension mapping
     $$ \cal E : C^{s'}(\Omega) \to C^{s'}_{per}(B),$$
     where $C^{s'}_{per}(B)$ denotes the space of continuously differentiable functions $w : B \to \bb R$ on the Cartesian domain $B$, having periodic derivates up to order $s'$. Since $K' \subset C^{s'}(\overline{\Omega})$ is compact, it follows $K^{'}_{per} := \cal E (K^{'})$ is also compact subset of $C^{s'}_{per}(B)$ (continuous image of a compact set). Since functions are periodic, we can identify $B \simeq \bb T^d$ with the periodic torus in a natural way. Let $\eta_1, \eta_2, \dots$ denote an enumeration of the $L^2$-orthogonal (real) Fourier sine/cosine basis in $L^2_per(B)$. Fix $\delta > 0$, and let $w_\delta : B \to \bb R$ be the standard mollification of the periodic function $w : B \to \bb R$. Since $K^{'}_{per} \subset C^{s'}_{per}(B)$ is compact, the set $\{w_\delta \mid w \in K_{per}^{'} \}$ is uniformly bounded in the $C^{r'}$-norm for any given $r' > s'$. In particular, it can be shown that approximation by Fourier series converges uniformly over $\{w_\delta \mid w \in K^{'})_{per}\}$, i.e. 
     $$ \lim\limits_{J \to \infty} \sup\limits_{w \in K^{'}_{per}}\left\| w_\delta - \sum_{j=1}^J \langle w_\delta,\eta_j\rangle_{L^2}\eta_j\right\|_{C^{s'}_{per}(B)} = 0$$
@@ -250,6 +250,23 @@ where $\eta_j$'s are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. i
     K'_{per} = \cal E (K') \hspace{3.4em}&= \sup\limits_{w \in K'_{per}} \left\|w - \sum_{j=1}^{J} \langle w,\eta_{j,\delta} \rangle_{L^2} \eta_j \right\|_{C^{s'}_{per}(B)} \\ &\leq \epsilon
     \end{aligned}
     $$
+    \paragraph{\bf Step 2. (construction of $\alpha_1, \dots, \alpha_J$)}
+    Let us define nonlinear functional $\beta_j: C^s(\overline{\Omega};\bb R^k) \to \bb R$ by  $\beta_j(u) := \langle \cal E (v),\eta_{j,\delta} \rangle_{L^2}$. Then from above we have,
+    $$ \sup\limits_{u \in K}\|\Psi^\dag(u) - \sum_{j=1}^{J}\beta_j(u)\eta_j\|_{C^{s'}} \leq \epsilon.$$
+    In above result, $\beta_j$ does not define a continuous functional $L^1(\Omega;\bb R^k) \to \bb R$. In order to get our desired result, we rely on mollification adapted to the bounded Lipschitz domain $\Omega$. Let $\delta > 0$ denote a mollification parameter. By Lemma $\ref{A.2}, part ~3$, there exists a continuous operator $\cal M_\delta : L^1(\Omega;\bb R^k) \to C^s(\overline{\Omega};\bb R^k)$, such that over the compact set $K \subset C^s(\overline{\Omega};\bb R^k)$, we have 
+    $$ \lim_{\delta \to 0}\sup\limits_{u \in K}\|u - \cal M_\delta (u)\|_{C^s} = 0,$$
+    We wish to define $\alpha_j : L^1(\Omega;\bb R^k) \to \bb R$ by $\alpha_j(u):= \beta_j(\cal M_\delta u)$ for suitably chosen $\delta > 0$. Recall that for fixed $\delta_0 > 0$, the set $K_\delta$ defined by 
+    $$ K_\delta := \bigcup\limits_{0\leq\delta\delta_0} \cal M_\delta (K),$$
+    is a compact subset of $C^s(\overline{\Omega};\bb R^k)$, by Lemma \ref{A.4}. Note that for any $j = 1, \dots, J$, we have a continuous mapping $\beta_j : K_\delta \to \bb R$ (proof for this fact can be found in the appendix \ref{appendix:A}). Since $K_\delta$ is compact, $\beta_j$'s are uniformly continuous which implies there exists a {\it modulus of continuity} $\omega : [0,\infty) \to [0, \infty)$, satisfying $\omega(0) = 0$, such that
+    $$ |\beta_j(u) - \beta_j(u')| \leq \omega(\|u - u'\|_{C^s}), \quad \forall u,u' \in K_\delta,$$
+    holds for all $j = 1, \dots, J$. It follows that since for each $u\in K_\delta, \cal M_\delta(u) \in K_\delta$,
+    $$|\beta_j(u) - \beta_j(\cal M_\delta(u))| \leq \omega(\|u - \cal M_\delta(u)\|_{C^s}), \quad \forall u \in K_\delta,$$
+    for any $0 \leq \delta \leq \delta_0$. Also, $|\beta_j(u) - \beta_j(\cal M_\delta u)| \leq \sup_{u \in K_\delta}(|\beta_j(u) - \beta_j(\cal M_\delta u)|)$ and there exists $u \in K_\delta$ for which supremum is attained since $K_\delta$ is compact. Therefore, for that $u$,
+    $$ \sup\limits_{u \in K_\delta}(|\beta_j(u) - \beta_j(\cal M_\delta u)|)\leq \omega \|u - \cal M_\delta (u)\|_{C^s} \leq \omega \sup\limits_{u \in K_\delta} \left(\|u - \cal M_\delta (u)\|_{C^s}\right)$$
+    By Lemma \ref{A.2}, $\cal M_\delta u \to u$ uniformly over $u \in K$, so we can conclude,
+    $$ \lim_{\delta \to 0} \sup\limits_{u \in K}(|\beta_j(u) - \beta_j(\cal M_\delta u)|) \leq \omega \lim_{\delta \to 0}\sup\limits_{u \in K} \left(\|u - \cal M_\delta (u)\|_{C^s}\right) = 0$$
+    In particular, we can choose $\delta > 0$ sufficiently small, to ensure that $\alpha_j(u) := \beta_j(\cal M_\delta u)$ satisfies 
+    $$ \sup_{u \in K}|\beta_j(u) - \alpha_j(u)| \leq \frac{\epsilon}{J \max_{j = 1,\dots,J}\|\eta_j\|_{C^{s'}}},$$
 \end{proof}
 \subsection{Sketch of the Proof of Universality}
 For the sake of completeness, theorem statement has been stated again below:
@@ -257,6 +274,33 @@ For the sake of completeness, theorem statement has been stated again below:
     Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s' \geq 0$ let $\Psi : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be continuous operator, and fix a compact set $K \subset C^s(\overline{\Omega};\bb R^k)$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi : K \subset C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ such that 
     $$ \sup\limits_{u \in K}\|\Psi^\dag (u) - \Psi(u)\|_{C^{s'}} \leq \epsilon.$$ 
 \end{thm}
+\appendix
+\section{Detailed proofs} \label{appendix:A}
+\begin{lem}
+    The mapping $\beta_j : K_\delta \to \bb R$ given by $u(x) \mapsto \langle\cal E(\Psi^\dag(u)),\eta_{j,\delta}\rangle_{L^2}$ is continuous where $K_\delta$ is defined as in Lemma \ref{A.4} and is compact. $\Psi^\dag : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ and $\cal E$ is the extension operator as in Lemma \ref{A.1}.
+\end{lem}
+\begin{proof}
+    Let  $\{u_i\}, i = 1, \dots, n$ be the sequence in $K_\delta$ (compact) such that $u_n \to u \in K_\delta.$ Our claim is to show that $\beta_j(u_n) \to \beta_j(u)$ as $n \to \infty$. For $u_n \in K_\delta$,
+    $$
+    \begin{aligned}
+        \lim_{n\to \infty}\beta_j(u_n) &= \lim_{n\to \infty} \langle\cal E(\Psi^\dag(u_n)),\eta_{j,\delta}\rangle_{L^2} \\
+        &= \lim_{n \to \infty}\langle\cal E(v_n),\eta_{j,\delta}\rangle_{L^2} \text{ \qquad for } v_n \in K^{'}_\delta:= \Psi^\dag(K_\delta) \\
+        &= \lim_{n \to \infty} \langle w_n, \eta_{j,\delta}\rangle_{L^2} \text{ \qquad for }w_n \in K'_{\delta, per}:= \cal E(K'_\delta) \\
+        &= \lim_{n \to \infty}\int_\Omega w_n n_{j,\delta} dx \text{ \qquad for } x \in \Omega\\
+        &=\int_\Omega \lim_{n \to \infty} w_n\eta_{j,\delta} dx \\
+        &= \int_\Omega w\eta_{j,\delta} dx = \langle\cal E(\Psi^\dag(u)),\eta_{j,\delta}\rangle_{L^2} \\
+        &= \beta_j(u)
+    \end{aligned}
+    $$
+    Since $u_n \to u$ and, $\Psi^\dag$ and $\cal E$ are continuous operators hence we have $\cal E(\Psi^\dag(u_n)) \to \cal E(\Psi^\dag(u))$(a.k.a $w_n \to w$) over a compact set $K_\delta$ which implies uniform convergence over $K_\delta$. Hence, the set $\{w_n \mid n = 1,2,\dots\}$ is uniformly bounded which implies $|w_n\eta_{j,\delta}| \leq M |\eta_{j,\delta}| =: g \in L^2_{per}(B)$ for some constant $M$.
+    $$
+    \begin{aligned}
+        \int_\Omega |g(x)|\cdot 1 dx &\leq \left(\int_{\Omega}\|g(x)\|_{L^2} dx \right)^{1/2}\cdot \left(\int_{\Omega} 1 dx\right)^{1/2}\text{ \quad (H\"{o}lder inequality) }\\
+        &< \infty. \qquad \because \Omega \subset B \text{ which is bounded. }
+    \end{aligned}
+    $$
+    This implies $g \in L^1(\Omega)$ and hence by Dominated convergence theorem, limit and integral can be interchange leading to the desired result. 
+\end{proof}
 \bibliographystyle{plainnat}
 \bibliography{ref}
 \end{document}
