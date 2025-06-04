@@ -252,7 +252,9 @@ where $\eta_j$'s are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. i
     $$
     \paragraph{\bf Step 2. (construction of $\alpha_1, \dots, \alpha_J$)}
     Let us define nonlinear functional $\beta_j: C^s(\overline{\Omega};\bb R^k) \to \bb R$ by  $\beta_j(u) := \langle \cal E (v),\eta_{j,\delta} \rangle_{L^2}$. Then from above we have,
-    $$ \sup\limits_{u \in K}\|\Psi^\dag(u) - \sum_{j=1}^{J}\beta_j(u)\eta_j\|_{C^{s'}} \leq \epsilon.$$
+    \begin{equation} \label{4}
+        \sup\limits_{u \in K}\|\Psi^\dag(u) - \sum_{j=1}^{J}\beta_j(u)\eta_j\|_{C^{s'}} \leq \epsilon.
+    \end{equation}
     In above result, $\beta_j$ does not define a continuous functional $L^1(\Omega;\bb R^k) \to \bb R$. In order to get our desired result, we rely on mollification adapted to the bounded Lipschitz domain $\Omega$. Let $\delta > 0$ denote a mollification parameter. By Lemma $\ref{A.2}, part ~3$, there exists a continuous operator $\cal M_\delta : L^1(\Omega;\bb R^k) \to C^s(\overline{\Omega};\bb R^k)$, such that over the compact set $K \subset C^s(\overline{\Omega};\bb R^k)$, we have 
     $$ \lim_{\delta \to 0}\sup\limits_{u \in K}\|u - \cal M_\delta (u)\|_{C^s} = 0,$$
     We wish to define $\alpha_j : L^1(\Omega;\bb R^k) \to \bb R$ by $\alpha_j(u):= \beta_j(\cal M_\delta u)$ for suitably chosen $\delta > 0$. Recall that for fixed $\delta_0 > 0$, the set $K_\delta$ defined by 
@@ -266,8 +268,41 @@ where $\eta_j$'s are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. i
     By Lemma \ref{A.2}, $\cal M_\delta u \to u$ uniformly over $u \in K$, so we can conclude,
     $$ \lim_{\delta \to 0} \sup\limits_{u \in K}(|\beta_j(u) - \beta_j(\cal M_\delta u)|) \leq \omega \lim_{\delta \to 0}\sup\limits_{u \in K} \left(\|u - \cal M_\delta (u)\|_{C^s}\right) = 0$$
     In particular, we can choose $\delta > 0$ sufficiently small, to ensure that $\alpha_j(u) := \beta_j(\cal M_\delta u)$ satisfies 
-    $$ \sup_{u \in K}|\beta_j(u) - \alpha_j(u)| \leq \frac{\epsilon}{J \max_{j = 1,\dots,J}\|\eta_j\|_{C^{s'}}},$$
+    \begin{equation} \label{5}
+        \sup_{u \in K}|\beta_j(u) - \alpha_j(u)| \leq \frac{\epsilon}{J \max_{j = 1,\dots,J}\|\eta_j\|_{C^{s'}}},
+    \end{equation}
+    for all $j = 1, \dots, J$. Since $\delta > 0$, $\cal M_\delta : L^1(\Omega;\bb R^k) \to C^s(\overline{\Omega};\bb R^k)$ is continuous (since its linear and bounded, by definition), and hence $\alpha_j = \beta_j \circ \cal M_\delta$ is continuous as mapping $\alpha_j : L^1(\Omega;\bb R^k) \to \bb R.$
+    \paragraph{\bf Step 3: (Conclusion)} Combining equation \ref{4} and \ref{5}, we have 
+    $$
+    \begin{aligned}
+        \sup\limits_{u \in K} \|\Psi^\dag(u) - \sum_{j=1}^{J} \alpha_j(u)\eta_j\|_{C^{s'}} &\leq \sup\limits_{u \in K} \|\Psi^\dag(u) - \sum_{j=1}^{J}\beta_j(u)\eta_j\|_{C^{s'}}\\
+        & \qquad + \sup\limits_{u \in K} \|\sum_{j=1}^{J}[\beta_j(u) - \alpha_j(u)]\eta_j\|_{C^{s'}}\\
+        & \leq \sup\limits_{u \in K} \|\Psi^\dag(u) - \sum_{j=1}^{J} \beta_j(u) \eta_j\|_{C^{s'}} \\
+        &\qquad + J \max\limits_{j=1,\dots,J} \|\eta_j\|_{C^{s'}} \max\limits_{j=1,\dots,J} \sup\limits_{u \in K} |\beta_j(u) - \alpha_j(u)| \\
+        & \leq 2\epsilon.
+    \end{aligned}
+    $$
+    Since, $\epsilon > 0$ is arbitrary, we have the desired result. 
 \end{proof}
+\begin{prop}
+    Let $\Psi^\dag : W^{s,p}(\Omega; \bb R^k) \to W^{s',p'}(\Omega;\bb R^{k'})$ be a continuous operator. Let $K \subset W^{s,p}(\Omega; \bb R^k)$ be a compact subset. Then for any $\epsilon > 0$, there exists $\eta_1, \dots, \eta_j \in W^{s',p'}(\Omega; \bb R^k),$ and continuous functional $\alpha_1, \dots, \alpha_N: L^1(\Omega; \bb R^k) \to \bb R$, such that 
+    $$ \sup\limits_{u \in K} \|\Psi^\dag(u) - \sum_{j=1}^{J} \alpha_j(u)\eta_j\|_{W^{s',p'}} \leq \epsilon.$$
+\end{prop}
+\begin{rem}
+    The proof for this proposition above is exactly similar to the previous proposition. The space $W^{s,p}(\Omega;\bb R^k) \simeq [W^{s,p}(\Omega; \bb R)]^k$ and the homeomorphism is given by $u(x) \mapsto (u_1(x),\dots,u_k(x))$. Wherever we have used Lemma \ref{A.2}, part $3$, for Sobolev spaces we can use Lemma \ref{A.2}, part $4,5$ which provides analogous results for Sobolev spaces.
+
+    \noindent A similar result as Lemma \ref{A.4} can also be proved in the settings of Sobolev space with the exactly similar sequential compactness implies compactness arguement for metric spaces.
+\end{rem}
+\paragraph{\bf Approximation Of Nonlinear Functionals By The Averaging Neural Operator}
+In this section, we will show that any nonlinear functional $\alpha: L^1(\Omega; \bb R^k) \to \bb R, u \to \alpha(u)$, can be approximated by an averaging neural operator in a suitable sense.
+\begin{lem}\label{A.9}
+    Let $\alpha:L^1(\Omega;\bb R^k) \to \bb R$ be a continuous nonlinear functional. Let $K \subset L^1(\Omega; \bb R^k)$ be a compact set, consisting of bounded functions, $\sup_{u \in K} \|u\|_{L^\infty} < \infty$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\tilde{\alpha} : L^1(\Omega; \bb R^k) \to L^1(\Omega),$ all of whose output functions are constant so that we may also view $\tilde{\alpha}$ as a function $\tilde{\alpha} : L^1(\Omega; \bb R^k) \to \bb R$, such that
+    $$ \sup\limits_{u \in K} |\alpha(u) - \tilde{\alpha}(u)| \leq \epsilon.$$
+\end{lem}
+
+
+
+
 \subsection{Sketch of the Proof of Universality}
 For the sake of completeness, theorem statement has been stated again below:
 \begin{thm}
