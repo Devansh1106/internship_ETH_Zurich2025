@@ -296,12 +296,80 @@ where $\eta_j$'s are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. i
 \paragraph{\bf Approximation Of Nonlinear Functionals By The Averaging Neural Operator}
 In this section, we will show that any nonlinear functional $\alpha: L^1(\Omega; \bb R^k) \to \bb R, u \to \alpha(u)$, can be approximated by an averaging neural operator in a suitable sense.
 \begin{lem}\label{A.9}
-    Let $\alpha:L^1(\Omega;\bb R^k) \to \bb R$ be a continuous nonlinear functional. Let $K \subset L^1(\Omega; \bb R^k)$ be a compact set, consisting of bounded functions, $\sup_{u \in K} \|u\|_{L^\infty} < \infty$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\tilde{\alpha} : L^1(\Omega; \bb R^k) \to L^1(\Omega),$ all of whose output functions are constant so that we may also view $\tilde{\alpha}$ as a function $\tilde{\alpha} : L^1(\Omega; \bb R^k) \to \bb R$, such that
+    Let $\alpha:L^1(\Omega;\bb R^k) \to \bb R$ be a continuous nonlinear functional. Let $K \subset L^1(\Omega; \bb R^k)$ be a compact set, consisting of bounded functions, $\sup_{u \in K} \|u\|_{L^\infty} < \infty$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\tilde{\alpha} : L^1(\Omega; \bb R^k) \to L^1(\Omega),$ all of whose output functions are constant so that we may also view $\tilde{\alpha}$ as a function $\tilde{\alpha} : L^1(\Omega; \bb R^k) \to \bb R$(since output functions are constant), such that
     $$ \sup\limits_{u \in K} |\alpha(u) - \tilde{\alpha}(u)| \leq \epsilon.$$
 \end{lem}
+\begin{proof}
+    Let $\alpha: L^1(\Omega; \bb R^k) \to \bb R$ be a continuous linear functional. Let $K \subset L^1(\Omega; \bb R^k)$ be a compact set. Fix $\epsilon > 0$. Our aim is to show that there exists an averaging neural operator $\tilde{\alpha} : L^1(\Omega; \bb R^k) \to L^1(\Omega)$ with constant output such that 
+    $$ \sup\limits_{u \in K} |\alpha(u) - \tilde{\alpha}(u)| \leq \epsilon.$$
+    Note that we can identify any $u \in L^1(\Omega; \bb R^k)$ with a function in $L^1(B; \bb R^k)$, via an extension of $u(x):= 0$ for $x \in B\backslash \Omega$. Using this identification compact subset $K \in L^1(\Omega; \bb R^k)$ can be identified with a compact subset of $L^1(\bb R^d; \bb R^k)$. Fix a smooth mollifier $\rho \in C^\infty$, and denote $\rho_\delta:= \delta^{-d}\rho(x/\delta)$ for $\delta > 0$. We denote by $u_\delta = (u * \rho_\delta)(x)$ the mollification of $u$ (extended to all of $\bb R^d$ by $0$ outside $\Omega$). Since $K \subset L^1(\Omega; \bb R^k)$ is compact, it follows from properties of mollification that
+    $$ \lim_{\delta \to 0} \sup\limits_{u \in K}\|u - u_\delta\|_{L^1(\Omega;\bb R^k)} = 0.$$
+    Since, $\alpha : L^1(\Omega;\bb R^k)$ is continuous, it follows that the mapping $\alpha_\delta : L^1(B;\bb R^k) \to \bb R$ defined by $\alpha_\delta(u) := \alpha(u_\delta),$ (well-defined, since $\alpha$ is well-defined) for $\delta > 0$, converges uniformly over $K$, as $\delta \to 0$:
+    \begin{equation} \label{6}
+        \lim_{\delta \to 0}\sup\limits_{u \in K}|\alpha(u) - \alpha_\delta(u)| = \lim_{\delta \to 0}\sup\limits_{u \in K}|\alpha(u) - \alpha(u_\delta)| = 0
+    \end{equation}
+    Since $\alpha$ is continuous and $u_\delta \to u$ uniformly. Now, for any choice of orthogonal basis $\xi_1, \xi_2, \dots$ of $L^2(\Omega; \bb R^k)$, which we may additionally choose to be smooth, $\xi_j \in C^\infty(\Omega; \bb R^k)$, we have uniform convergence,
+    \begin{equation} \label{7}
+        \sup_{u \in K} \|u_\delta - \sum_{j=1}^{J}\langle u_\delta, \xi_j\rangle_{L^2} \xi_j\|_{L^1(\Omega; \bb R^k)} \to 0,
+    \end{equation}
+    as $J \to \infty$ (this is the Fourier expansion of $u_\delta \in K$, a subset of Hilbert space). We note that above expression is well-defined since $K \subset L^1 \cap L^\infty \subset L^2$(which is the Hilbert space). Furthurmore, $K \subset L^2$ is compact in the $L^2$-norm, this makes it uniformly convergent. With the convention that $u$ and $\xi_j$ are expanded by $0$ outside of $\Omega$, we have
+    \begin{equation} \label{8}
+        \begin{aligned}
+        \langle u_\delta,\xi_j\rangle_{L^2} &= \int_{\Omega}u_\delta (y) \cdot \xi_\delta (y) dy = \int_{\bb R^d} (u * \rho_\delta)(y) \cdot \xi_j(y) dy \\
+        &= \int_{\bb R^d} u(y) \cdot (\xi_j * \rho_\delta)(y) dy = \fint_\Omega u(y) \cdot \xi_{j,\delta}(y) dy,
+    \end{aligned}
+    \end{equation}
+    where the change of convolution is due to the assumption that $\rho_\delta$ is even (which is standard for the mollifiers) and we have defined $\xi_{j,\delta}(y) := |\Omega|(\xi_j * \rho_\delta)(y).$ Hence, if we define $\alpha_{\delta,J}:= L^1(\Omega;\bb R^k) \to \bb R$ by 
+    $$ \alpha_{\delta,J} := \alpha\left(\sum_{j=1}^J\left(\fint_\Omega u(y)\cdot \xi_{j,\delta}(y) dy\right)\xi_j\right)$$
+    then it follows from (\ref{6}), (\ref{7}) and (\ref{8}), that for $\delta(K) > 0$ sufficiently small, and $J = J(\delta,K) \in \bb N$ sufficiently large, we have $\sup_{u \in K}|\alpha_\delta(u) - \alpha_{\delta, J}(u)| \leq \epsilon/2$. TO indicate the connection to averaging neural operators, we note that we can write $\alpha_{\delta, J}$ as the following composition:
+    {\small $$ u \mapsto \left(\fint_{\Omega} u(y) \cdot \xi_{1,\delta}(y)dy, \dots, \fint_{\Omega} u(y) \cdot \xi_{J,\delta}(y)dy \right) \mapsto \alpha\left(\sum_{j=1}^J\left(\fint_\Omega u(y)\cdot \xi_{j,\delta}(y) dy\right)\xi_j\right).$$ }
+    First mapping requires calculation of average hence requires non-locality. Second mapping is of the type $\beta_J : \bb R^J \to \bb R, c = (c_1, \dots c_J) \mapsto \alpha(\sum_{j=1}^{J}c_j\xi_j).$ Approximating this mapping can be done by ordinary neural networks and requires nonlinearity and not nonlocality. Choose $M > 0$, such that the image of the compact set $K \subset L^1(\Omega;\bb R^k)$ under the mapping
+    $$ L^1(\Omega; \bb R^k) \to \bb R^J, u \mapsto \left(\fint_\Omega u(y) \cdot \xi_{1,\delta}(y) dy, \dots, \fint_\Omega u(y) \cdot \xi_{J,\delta}(y) dy\right),$$
+    is compact and hence contained in a box $[-M,M]^J$. This is required since the input of $\alpha$ need to be a element of a compact set for out analysis to make sense. Note that $c \to \beta(c) = \alpha\left(\sum_{j=1}^{J}c_j\xi_j\right)$ is continuous, by continuity of $\alpha$. By universality of conventional neural networks, there exists a neural network $\tilde{\beta}: \bb R^J \to \bb R$, such that
+    $$ \sup_{c \in [-M,M]^J}|\tilde{\beta(c)} - \beta(c)| \leq \epsilon.$$
+    We can write $\tilde{\beta}:\bb R^J \to \bb R$ as composition of the hidden layers:
+    $$
+    \begin{cases} \label{eq9}
+        v_0 := c,\\
+        v_l := \sigma\left(\tilde{A}_lv_{l-1} + b_l\right), l = 1, \dots, L,\\
+        \tilde{\beta}(c) := \tilde{A}_{L+1}v_L + \tilde{b}_{L+1},
+    \end{cases}
+    $$
+    where $\tilde{A}_l, \tilde{b}_l$ are the weights and biases of the hidden layers. Parallelizing the neural networks constructed in Lemma \ref{lem7}, it follows that for any $\epsilon > 0$, there exists a neural network $\tilde{R}: \bb R^K \times \Omega \to \bb R^J, (v,x) \mapsto \tilde{R}(v,x) - ((\tilde{R}_1)(v,x), \dots, \tilde{R}_J(v,x))$, such that
+    $$ \sup_{u \in K}\left|\fint_\Omega \tilde{R}_j(u(y),y) dy - \fint_\Omega u(y)\cdot \xi_{j,\delta}(y) dy\right| \leq \epsilon',$$
+    for each $j = 1,\dots, J$. Composing the output layer with an affine mapping, we can construc another network $R$, such that
+    $$ R(u(x),x) = \tilde{A}_1\tilde{R}(u(x),x) + \tilde{b}_1,$$
+    where $\tilde{A}_1,\tilde{b}_1$ are the weights and biases of the input layer of $\tilde{\beta}$ defined by \ref{eq9}
 
+\end{proof}
 
-
+\begin{lem}\label{lem7}
+    Let $K \subset L^1(\Omega; \bb R^k)$ be compact, consisting of uniformly bounded function $\sup_{u \in K} \|u\|_{L^\infty} < \infty$. Let $\xi \in C^\infty(\overline{\Omega};\bb R^k)$ be given and fixed. Then for $\epsilon>0$, there exists a nerual network $\tilde{R} : \bb R^k \times \Omega \to \bb R^k$, such that 
+    $$ \sup_{u \in K}\left|\fint_\Omega \tilde{R}((u(y)),y) dy - \fint_\Omega u(y) \cdot \epsilon(y) dy \right| \leq \epsilon.$$
+\end{lem}
+\begin{proof}
+    Fix $\epsilon > 0$. In the following, we denote by
+    $$ M_K := \sup_{u\in K}\|u\|_{L^\infty},$$
+    the upper $L^\infty$-bound on elements $u \in K$. By assumption, $M_K$ is finite. As $\xi \in C^\infty(\overline{\Omega};\bb R^k)$ is fixed, and $\Omega \subset \bb R^d$ is bounded, there exists a neural network $\tilde{\xi}: \Omega \to \bb R^k$, such that 
+    $$ \sup_{u \in K}|\xi(x) - \tilde{\xi}(x)|_{l^\infty} \leq \epsilon/(2kM_K),$$
+    where $k$ is the number of components of $\xi$. Furthermore define
+    $$ M_{\xi} := \max\{\|\xi\|_{L^\infty}, \|\tilde{\xi}\|_{L^\infty}\} < \infty.$$
+    By universality of ordinary neural networks, there exists a neural network $\tilde{\times} : [-M_K,M_K]^k \times [-M_\epsilon,M_\epsilon]^k \to \bb R$, such that
+    $$ \sup_{|v|_{l^\infty}\leq M_K,|w|_{l^\infty}\leq M_\epsilon} |v\cdot w - \tilde{\times}(u,w)| \leq \epsilon/2.$$
+    Defining a new neural network as the composition $\tilde{R}(v,x):= \tilde{\times}(v,\tilde{\epsilon}$, it now follows that for any $u \in K$: 
+    $$
+    \begin{aligned}
+        \sup_{x\in \Omega}|\tilde{R}(u(x),x) - u(x)\cdot\xi(x)| &= \sup_{x\in \Omega} |\tilde{\times}(u(x),\tilde{\times}(x)) - u(x) \cdot \xi(x)| \\
+        &\leq \sup_{x\in \Omega}|\tilde{\times}(u(x), \tilde{\xi}(x)) - u(x)\cdot \tilde{\xi}(x)| \\
+        &\qquad \sup_{x\in \Omega}|u(x) \cdot \tilde{\xi}(x) - u(x) \cdot \xi(x)|\\
+        &\leq \sup_{|v|_{l^\infty}\leq M_K,|w|_{l^\infty}\leq M_\epsilon} |\tilde{\times}(v,w) - v \cdot w| \\
+        &\qquad +kM \sup_{x \in \Omega}|\tilde{\xi}(x) - \xi(x)|_{l^\infty} \\
+        &\leq \epsilon.
+    \end{aligned}
+    $$
+    It can easily be seen that this upper bound implies that
+    $$ \sup_{u \in K}\left|\fint_{\Omega}\tilde{R}(u(y),y) dy - \fint_{\Omega}(u(y)\cdot \xi(y) dy \right| \leq \epsilon.$$
+\end{proof}
 
 \subsection{Sketch of the Proof of Universality}
 For the sake of completeness, theorem statement has been stated again below:
