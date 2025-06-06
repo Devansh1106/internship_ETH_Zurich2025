@@ -9,6 +9,7 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{amsthm}
+\usepackage{mathtools}
 \usepackage{mathrsfs}
 \usepackage{esint}
 \usepackage{fancyhdr}
@@ -115,12 +116,12 @@ where lifting and projection maps $\cal R$ and $\cal Q$ are given as in above eq
 \paragraph{\bf Parameters of ANO} Due to its minimal structure, the ANO depends on only one {\it hyperparameter;} the lifting dimension $d_c$. The {\it tunable parameters} of ANO are represented by the weight matrix $W \in \bb R^{d_c\times d_c}$ and bias $b \in \bb R^{d_c}$ in the hidden layer $\cal L$, and the internal weights and biases of the ordinary neural network $R$ and $Q$ defined in lifting and projection layers, respectively.
 
 \subsection{\bf Universal Approximation}
-\begin{thm}
+\begin{thm}\label{thm2.1}
     Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s' \geq 0$ let $\Psi : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be continuous operator, and fix a compact set $K \subset C^s(\overline{\Omega};\bb R^k)$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi : K \subset C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ such that 
     $$ \sup\limits_{u \in K}\|\Psi^\dag (u) - \Psi(u)\|_{C^{s'}} \leq \epsilon.$$ 
 \end{thm}
 The above result is in the space of continuously differentiable functions. Author also has a corresponding result in the scale of Sobolov spaces $W^{s,p}$:
-\begin{thm}
+\begin{thm} \label{thm2.2}
     Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s'\geq 0$, and reals $p,p' \in [1,\infty)$, let $\Psi^\dag: W^{s,p}(\Omega;\bb R^k) \to W^{s',p'}(\Omega;\bb R^{k'})$ be a continuous operator. Fix a compact set $K \subset W^{s,p}(\Omega;\bb R^k)$ of bounded functions, $\sup_{u \in K}\|u\|_{L^\infty} < \infty$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi:W^{s,p}(\Omega;\bb R^k) \to W^{s',p'}(\Omega;\bb R^{k'})$ such that 
     $$ \sup\limits_{u\in K}\|\Psi^\dag(u) - \Psi(u)\|_{W^{s',p'}} \leq \epsilon.$$
 \end{thm}
@@ -215,16 +216,32 @@ $u_\delta$ is smooth function for $\delta>0$ (by lemma \ref{2}) and that
 \end{proof}
 \paragraph{\bf Universal Approximation Of Neural Networks}
 From [\cite{AP1999}, Thm. 4.1], neural network architecture is universal in the class of $C^s$- function between Euclidean vector spaces ($C^s(\bb R^n; \bb R^m)$) when the activation function $\sigma$ is nonpolynomial and sufficiently smooth, $\sigma \in C^s$. This implies universality of neural networks in Sobolev spaces $W^{s,p}$ of functions between Euclidean vector spaces. (Why? TODO).
-\begin{lem}[A.5] TODO
+\begin{lem}[A.5] \label{A.5}
+    Let $\Omega \subset \bb R^d$ be a bounded Lipschitz domain. Then for any function $u : \Omega \to \bb R^k$, where $u$ belongs to either the space of continuously differentiable functions $C^s(\overline{\Omega};\bb R^k),$ or the Sobolov space $W^{s,p}(\Omega;\bb R^k)$, for integer $s \geq 0$ and $p \in [1,\infty)$, and for any $\epsilon > 0$, there exists a neural network $\tilde{u} : \Omega \to \bb R^k$ with activation function $\sigma$, such that
+    $$ \sup_{x \in \Omega}|u(x) - \tilde{u}(x)| \leq \epsilon.$$
 \end{lem}
 \begin{proof}
-    TODO
+    {\bf Step 1.} We first assume that $u \in C^s(\overline{\Omega};\bb R^k)$. By Lemma \ref{A.1}, there exists a (periodic) extension $U : \bb R^d \to \bb R$, such that $u(x) = U(x)$ for $x \in \Omega$, and $U \in C^s(\bb R^d;\bb R^k)$. It follows from \cite{AP1999}(Thm 4.1) that for any $\epsilon > 0$, there exists a neural network $\tilde{u} : \bb R^d \to \bb R$, such that
+    $$ \|u - \tilde{u}\|_{C^s(\overline{\Omega};\bb R^k)} = \sup_{|\alpha| \leq s}\sup_{x\in \overline{\Omega}}|D^\alpha U(x) - D^\alpha \tilde{u}(x)| \leq \epsilon.$$
+    {\bf Step 2.} If $u \in W^{s,p}(\Omega;\bb R^k)$, then we note that by Lemma \ref{A.2}, the boundary-adapted mollification $u_\delta:\cal M_\delta$ converges to $u$ as $\delta \to 0$. Let $\epsilon > 0$ be given. Choose $\delta > 0$ sufficiently small, such that
+    $$ \|u - u_\delta\|_{W^{s,p}(\Omega;\bb R^k)} \leq \epsilon/2.$$
+    We note that $C^{s+1}(\overline{\Omega};\bb R^k) \hookrightarrow W^{s,p}(\Omega;\bb R^k)$ has a continuous embedding, and hence there exists a constant $C_0 > 0$, such that
+    $$ \|\cdot\|_{W^{s,p}(\Omega;\bb R^k)} \leq C_0 \|\cdot\|_{C^{s+1}(\Omega;\bb R^k)}.$$
+    Now note that there exists a neural network $\tilde{u}$, such that $\|u_\delta - \tilde{u}\|_{C^{s+1}(\overline{\Omega};\bb R^k)} \leq \epsilon/2C_0$, this follows since $u_\delta \in C^{s+1}(\overline{\Omega};\bb R^k).$ and Step 1. Combining these estimate, we obtain
+    $$
+    \begin{aligned}
+        \|u - \tilde{u}\|_{W^{s,p}(\Omega;\bb R^K)} &\leq \|u - u_\delta\|_{W^{s,p}(\Omega;\bb R^K)} + \|u_\delta - \tilde{u}\|_{W^{s,p}(\Omega;\bb R^K)} \\
+        &\leq \epsilon/2 + C_0\|u_\delta - \tilde{u}\|_{C^{s+1}(\overline{\Omega};\bb R^k)}\\
+        &\leq \epsilon.
+    \end{aligned}
+    $$
+    This is true for all $x \in \Omega$. This concludes our proof.
 \end{proof}
 \paragraph{\bf A Dense Subset Of Operators}
 In order to prove universal approximation for averaging neural operator,we ned to use the fact that it is possible to reduce the problem for general operator $\Psi^\dag :C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})($or $\Psi^\dag :W^{s,p}(\overline{\Omega};\bb R^k) \to W^{s',p'}(\overline{\Omega};\bb R^{k'}$, respectively), to a simple class of operators which can be written in the form,
 $$ \tilde{\Psi}^\dag(u) = \sum\limits_{j=1}^{J}\alpha_j(u)\eta_j,$$
 where $\eta_j$'s are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. in $W^{s',p'}(\overline{\Omega};\bb R^{k'})$), and $\alpha_1,\dots,\alpha_J:L^1(\Omega;\bb R^k) \to \bb R$ are continuous nonlinear functionals, defined on the space of integrable functions. The following proposition summarizes this fact.
-\begin{prop}[A.6]
+\begin{prop}[A.6] \label{A.6}
     Let $\Psi^\dag : C^s(\Omega;\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be a continuous operator. Let $K \subset C^s(\overline{\Omega}'\bb R^k)$ be a compact subset. Then for any $\epsilon > 0$, there exist $J \in \bb N$, functions $\eta_1,\dots \eta_J \in C^{s'}(\overline{\Omega};\bb R^k)$, and continuous functionals $\alpha_1, \dots, \alpha_J:L^1(\Omega;\bb R^k) \to \bb R$, such that the operator $\tilde{\Psi}^\dag : L^1(\Omega;\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'}), \tilde{\Psi}^\dag(u) := \sum\limits_{j=1}^{J}\alpha_j(u)\eta_j$, satisfies
     $$ \sup\limits_{u \in K}\|\Psi^\dag(u) - \tilde{\Psi}^\dag(u)\|_{C^{s'}} \leq \epsilon$$
 \end{prop}
@@ -284,7 +301,7 @@ where $\eta_j$'s are functions in $C^{s'}(\overline{\Omega};\bb R^{k'})$(resp. i
     $$
     Since, $\epsilon > 0$ is arbitrary, we have the desired result. 
 \end{proof}
-\begin{prop}
+\begin{prop} \label{A.8}
     Let $\Psi^\dag : W^{s,p}(\Omega; \bb R^k) \to W^{s',p'}(\Omega;\bb R^{k'})$ be a continuous operator. Let $K \subset W^{s,p}(\Omega; \bb R^k)$ be a compact subset. Then for any $\epsilon > 0$, there exists $\eta_1, \dots, \eta_j \in W^{s',p'}(\Omega; \bb R^k),$ and continuous functional $\alpha_1, \dots, \alpha_N: L^1(\Omega; \bb R^k) \to \bb R$, such that 
     $$ \sup\limits_{u \in K} \|\Psi^\dag(u) - \sum_{j=1}^{J} \alpha_j(u)\eta_j\|_{W^{s',p'}} \leq \epsilon.$$
 \end{prop}
@@ -326,23 +343,47 @@ In this section, we will show that any nonlinear functional $\alpha: L^1(\Omega;
     First mapping requires calculation of average hence requires non-locality. Second mapping is of the type $\beta_J : \bb R^J \to \bb R, c = (c_1, \dots c_J) \mapsto \alpha(\sum_{j=1}^{J}c_j\xi_j).$ Approximating this mapping can be done by ordinary neural networks and requires nonlinearity and not nonlocality. Choose $M > 0$, such that the image of the compact set $K \subset L^1(\Omega;\bb R^k)$ under the mapping
     $$ L^1(\Omega; \bb R^k) \to \bb R^J, u \mapsto \left(\fint_\Omega u(y) \cdot \xi_{1,\delta}(y) dy, \dots, \fint_\Omega u(y) \cdot \xi_{J,\delta}(y) dy\right),$$
     is compact and hence contained in a box $[-M,M]^J$. This is required since the input of $\alpha$ need to be a element of a compact set for out analysis to make sense. Note that $c \to \beta(c) = \alpha\left(\sum_{j=1}^{J}c_j\xi_j\right)$ is continuous, by continuity of $\alpha$. By universality of conventional neural networks, there exists a neural network $\tilde{\beta}: \bb R^J \to \bb R$, such that
-    $$ \sup_{c \in [-M,M]^J}|\tilde{\beta(c)} - \beta(c)| \leq \epsilon.$$
+    \begin{equation}\label{eq8}
+        \sup_{c \in [-M,M]^J}|\tilde{\beta(c)} - \beta(c)| \leq \epsilon.
+    \end{equation}
     We can write $\tilde{\beta}:\bb R^J \to \bb R$ as composition of the hidden layers:
-    $$
+    \begin{equation}
     \begin{cases} \label{eq9}
         v_0 := c,\\
         v_l := \sigma\left(\tilde{A}_lv_{l-1} + b_l\right), l = 1, \dots, L,\\
         \tilde{\beta}(c) := \tilde{A}_{L+1}v_L + \tilde{b}_{L+1},
     \end{cases}
-    $$
+    \end{equation}
     where $\tilde{A}_l, \tilde{b}_l$ are the weights and biases of the hidden layers. Parallelizing the neural networks constructed in Lemma \ref{lem7}, it follows that for any $\epsilon > 0$, there exists a neural network $\tilde{R}: \bb R^K \times \Omega \to \bb R^J, (v,x) \mapsto \tilde{R}(v,x) - ((\tilde{R}_1)(v,x), \dots, \tilde{R}_J(v,x))$, such that
     $$ \sup_{u \in K}\left|\fint_\Omega \tilde{R}_j(u(y),y) dy - \fint_\Omega u(y)\cdot \xi_{j,\delta}(y) dy\right| \leq \epsilon',$$
     for each $j = 1,\dots, J$. Composing the output layer with an affine mapping, we can construc another network $R$, such that
     $$ R(u(x),x) = \tilde{A}_1\tilde{R}(u(x),x) + \tilde{b}_1,$$
-    where $\tilde{A}_1,\tilde{b}_1$ are the weights and biases of the input layer of $\tilde{\beta}$ defined by \ref{eq9}
-
+    where $\tilde{A}_1,\tilde{b}_1$ are the weights and biases of the input layer of $\tilde{\beta}$ defined by \ref{eq9}. In particular, it follows that for any input $u \in K$, and defining coefficients $c(u) := (c_1, \dots, c_J)$ by $c_j := \fint_\Omega u(y) \cdot \xi_{j,\delta}(y) dy,$ we have 
+    \begin{equation}\label{eq10}
+        \sup_{u \in K}\left|\sigma\left(\fint_\Omega R(u(x),y) dy\right) - \sigma\left(\tilde{A}_1 c(u)+\tilde{b}_1\right)\right| \leq \|\sigma\|_{Lip}\|\tilde{A}\|\epsilon'
+\end{equation}
+    where $\|\tilde{A}_1\|$ denotes the operator norm of $\tilde{A}_1$. Above inequality is derived using the last two inequalities before it. The second term in the above inequality is exactly the output of the first hidden layer of $\tilde{\beta}$ in equation \ref{eq9}. Let us decompose $\tilde{\beta}(c) = \tilde{\beta}_1 \circ \sigma(\tilde{A}_1 c + \tilde{b}_1),$ where $\tilde{\beta}_1$ denote the composition of the other hidden layers, $l = 2, \dots, L,$ amd the output layer. Composing each of the terms appearing on the left-hand side of above equation with $\tilde{\beta}_1$ and choosing $\epsilon'$ sufficiently small (depending on $\tilde{\beta}_1,\tilde{A}_1$), we can ensure that
+    $$ \sup_{u \in K} \left|\tilde{\beta}_1\left(\sigma\left(\fint_\Omega R(u(y),y) dy\right)\right) - \tilde{\beta}_1\left(\sigma\left(\tilde{A}_1 c(u) + \tilde{b}_1\right)\right)\right| \leq \epsilon,$$
+    since $\tilde{\beta}_1$ is the composition of linear terms with nonlinearity activation function which is Lipschitz hence applying similar argument as equation \ref{eq10} multiple times will give the above result. Above result is equivalent to,
+    \begin{equation}\label{eq11}
+        \sup_{u \in K} \left|\tilde{\beta}_1\left(\sigma\left(\fint_\Omega R(u(y),y) dy\right)\right) - \tilde{\beta}\left(c(u)\right)\right| \leq \epsilon
+    \end{equation}
+    This is because $\tilde{\beta}(c) = \tilde{\beta}_1 \circ \sigma(\tilde{A}_1 c + \tilde{b}_1)$. From \ref{eq8} and \ref{eq11}, it follows that the averaging neural operator $\tilde{\alpha}$, defined by the following composition,
+    \begin{equation}
+        \tilde{\alpha}:u \xmapsto{(1)} R(u(\cdot),\cdot) \xmapsto{(2)} \sigma\left(\fint_\Omega R(u(y),y) dy\right) \xmapsto{(3)} \tilde{\beta}_1 \circ \sigma\left(\fint_\Omega R(u(y),y) dy\right),
+    \end{equation}
+    satisfies
+    $$
+    \begin{aligned}
+        \sup_{u \in K} |\alpha(u) - \tilde{\alpha}(u)| &= \sup_{u \in K}|\beta(c(u)) - \tilde{\alpha}(u)|\\
+        &\leq \sup_{u \in K}|\beta(c(u)) - \tilde{\beta}(c(u))|\\
+        &\qquad + \sup_{u \in K}\left|\tilde{\beta}(c(u)) - \tilde{\beta}_1 \circ \sigma \left(\fint_\Omega R(u(y),y) \right) \right|\\
+        &\leq \sup_{c\in [-M,M]^N} |\beta(c) - \tilde{\beta}(c)| \\
+        & \qquad + \sup_{u \in K} \left|\tilde{\beta}(c(u)) - \tilde{\beta}_1 \circ \sigma \left(\fint_\Omega R(u(y),y) dy\right)\right|\\
+        &\leq \epsilon + 0 = \epsilon.
+    \end{aligned}
+    $$
 \end{proof}
-
 \begin{lem}\label{lem7}
     Let $K \subset L^1(\Omega; \bb R^k)$ be compact, consisting of uniformly bounded function $\sup_{u \in K} \|u\|_{L^\infty} < \infty$. Let $\xi \in C^\infty(\overline{\Omega};\bb R^k)$ be given and fixed. Then for $\epsilon>0$, there exists a nerual network $\tilde{R} : \bb R^k \times \Omega \to \bb R^k$, such that 
     $$ \sup_{u \in K}\left|\fint_\Omega \tilde{R}((u(y)),y) dy - \fint_\Omega u(y) \cdot \epsilon(y) dy \right| \leq \epsilon.$$
@@ -371,12 +412,120 @@ In this section, we will show that any nonlinear functional $\alpha: L^1(\Omega;
     $$ \sup_{u \in K}\left|\fint_{\Omega}\tilde{R}(u(y),y) dy - \fint_{\Omega}(u(y)\cdot \xi(y) dy \right| \leq \epsilon.$$
 \end{proof}
 
-\subsection{Sketch of the Proof of Universality}
-For the sake of completeness, theorem statement has been stated again below:
-\begin{thm}
-    Let $\Omega \subset \bb R^d$ be a bounded domain with Lipschitz boundary. For given integers $s,s' \geq 0$ let $\Psi : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ be continuous operator, and fix a compact set $K \subset C^s(\overline{\Omega};\bb R^k)$. Then for any $\epsilon > 0$, there exists an averaging neural operator $\Psi : K \subset C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'})$ such that 
-    $$ \sup\limits_{u \in K}\|\Psi^\dag (u) - \Psi(u)\|_{C^{s'}} \leq \epsilon.$$ 
-\end{thm}
+\paragraph{\bf Proof of Universal Approximation $C^s \to C^{s'}$, Theorem \ref{thm2.1}}The main idea behind the proof is that using Proposition \ref{A.6}, it suffices to approximate operators of the form
+$$ \tilde{\Psi}^\dag(u) = \sum_{j=1}^{J} \alpha_j(u)\eta_j,$$
+where $\alpha_j : L^1(\Omega; \bb R^n) \to \bb R$ are the functionals, and $\eta_j \in C^{s'}(\overline{\Omega};\bb R^{k'})$ are fixed functions. Given averaging neural operators $\Psi_1, \dots, \Psi_J$, we can obtain a new averaging neural operator $\Psi$, such that $\Psi(u) = \sum_{j=1}^{J}\Psi_j(u)$ for all input functions $u$. Thus, it suffices to prove that any one mapping of the form 
+$$ \tilde{\Psi}_j^\dag : L^1(\Omega;\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^{k'}), u \mapsto \alpha_j (u) \eta_j,$$
+can be approximated by an averaging neural operator.
+
+\begin{proof}{(Theorem \ref{thm2.1})}
+    Let $\Psi^\dag : C^s(\overline{\Omega};\bb R^k) \to C^{s'}(\overline{\Omega};\bb R^k)$ be a continuous operator. We aim to show that there exists an averaging neural operator $\Psi$ of the form $\Psi = \cal Q \circ \cal L_L \circ \dots L_1 \circ \cal R$, such that
+    $$ \sup_{u \in K} \|\Psi^\dag(u) - \Psi(u)\|_{C^{s'}} \leq \epsilon.$$
+    Fix $\epsilon > 0$. By Proposition \ref{A.6}, there exists functions $\eta_1, \dots, \eta_J \in C^{s'}(\overline{\Omega};\bb R^{k'})$, and continuous functionals $\alpha_1, \dots, \alpha_J : L^(\Omega; \bb R^k) \to \bb R,$ such that
+    $$ \sup_{u \in K}\|\Psi^\dag(u) - \sum_{j=1}^{J}\alpha_j(u)\eta_j\|_{C^{s'}} \leq \epsilon/2.$$
+    We now prove make the following claim:
+    \paragraph{\bf Claim A.12 \label{claim1}} Let $K \subset L^1(\Omega; \bb R^k)$ be a compact set, consisting of bounded functions $\sup_{u \in K}\|u\|_{L^\infty} < \infty$. Let $\eta_1, \dots, \eta_J \in C^{s'}(\overline{\Omega};\bb R^k)$ be functions and let $\alpha_1, \alpha_J : L^1(\Omega; \bb R^k) \to \bb R$ be continuous nonlinear functionals. Then for any $j = 1, \dots, J$, there exists an averaging neural operator $\Psi_j : L^1(\Omega; \bb R^k) \to C^{s'}(\overline{\Omega};\bb R^k)$, such that
+    $$\sup_{u\in K}\|\alpha_j(u)\eta_j - \Psi_j(u)\|_{C^{s'}} \leq \epsilon/2J.$$
+    
+    \noindent Relying on above claim, it is easy to see that there exists an averaging neural operator, such that $\Psi(u) = \sum_{j=1}^{J} \Psi_j(u)$ for all input functions $u$. This operator satisfies, for any $u \in K$:
+    $$
+    \begin{aligned}
+        \|\Psi^\dag(u) - \Psi(u)\|_{C^{s'}} &\leq \left\|\Psi^\dag(u) - \sum\nolimits_{j=1}^{J} \alpha_j(u) \eta_j\right\|_{C^{s'}} + \left\|\sum\nolimits_{j=1}^{J}\alpha_j(u)\eta_j - \Psi(u)\right\|_{C^{s'}}\\
+        &\leq \left\|\Psi^\dag(u) - \sum\nolimits_{j=1}^{J} \alpha_j(u) \eta_j\right\|_{C^{s'}} + \sum\nolimits_{j=1}^{J}\left\|[\alpha_j(u)\eta_j - \Psi_j(u)]\right\|_{C^{s'}}\\
+        &\leq \epsilon/2 + J\epsilon/2J = \epsilon,
+    \end{aligned}
+    $$
+    This is true for all $u \in K$ hence taking supremum over $K$, the above claim implies,
+    $$ \sup_{u \in K} \|\Psi^\dag(u) - \Psi(u)\|_{C^{s'}} \leq \epsilon,$$
+    which gives the desired result of Theorem \ref{thm2.1}.
+
+    \noindent In order to prove above \nameref{claim1}, fix $j \in \{1,\dots, J\}$ for all the following. We first define
+    \begin{equation}
+        M_\eta := \|\eta_j\|_{C^{s'}(\Omega;\bb R^{k'})}.
+    \end{equation}
+    We observe that by Lemma \ref{A.9}, there exists an averaging neural operator $\tilde{\alpha}_j : L^1(\Omega;\bb R^k) \to L^1(\Omega),$ with the constant output functions, such that
+    \begin{equation}\label{eq15}
+        \sup_{u \in K}|\alpha_j(u) - \tilde{\alpha_j}(u)| \leq \epsilon/6JM_\eta.
+    \end{equation}
+    Choose $M_\alpha > 0$, such that
+    \begin{equation}
+        \sup_{u \in K}|\alpha_j(u)|, \sup_{u\in K}|\tilde{\alpha}_j(u) \leq M_\alpha.
+    \end{equation}
+    Since $\eta_j\in C^{s'}(\overline{\Omega};\bb R^{k'}),$ there exists an ordinary neural network $\tilde{\eta}_j: \Omega \to \bb R^{k'}$ such that (Lemma \ref{A.5}):
+    \begin{equation} \label{eq17}
+        \|\eta_j - \tilde{\eta}_j\|_{C^{s'}} \leq \epsilon/6JM_\alpha.
+    \end{equation}
+    Let us also define 
+    \begin{equation}
+        \tilde{M}_\eta := \max\{M_\eta,\|\tilde{\eta}_j\|_{C^{s'}}\}.
+    \end{equation}
+    Fix a small parameter $\delta > 0$. Since scalar multiplication $\times : [-M_\alpha,M_\alpha] \times [-\tilde{M}_\eta, \tilde{M}_\eta]^k \to \bb R^K, (a,v) \mapsto \times(a,v) := av$ defines a smooth mapping, there similarly exists a nerual network $\tilde{\times} : [-M_\alpha,M_\alpha] \times [-\tilde{M}_\eta, \tilde{M}_\eta]^k \to \bb R^K, (a,v) \mapsto \times(a,v),$ such that
+    \begin{equation}\label{eq19}
+        \|\times(\cdot,\cdot) - \tilde{\times}(\cdot,\cdot)\|_{C^{s'}([-M_\alpha,M_\alpha] \times [-\tilde{M}_\eta, \tilde{M}_\eta]^{k'};\bb R^{k'})} \leq \delta
+    \end{equation}
+    We also know that composition of $C^{s'}$- functions is itself $C^{s'}$, and that there exists a constant $C_0 = C_0(s',k') > 0$, depending only on $s'$ and $k'$, such that
+    $$
+    \begin{aligned}
+        \sup_{|\alpha| \leq M_\alpha} &\|\times (a,\tilde{\eta}_j(\cdot)) - \tilde{\times}(a,\tilde{\eta}_j(\cdot))\|_{C^{s'}(\Omega;\bb R^{k'})}\\
+        &\leq \|\times(\cdot,\tilde{\eta}_j(\cdot)) - \tilde{\times}(\cdot,\tilde{\eta}_j(\cdot))\|_{C^{s'}([-M_\alpha,M_\alpha] \times \Omega;\bb R^{k'})}\\
+        &\leq C_0\|\times(\cdot,\cdot) - \tilde{\times}(\cdot,\cdot)\|_{C^{s'}([-M_\alpha,M_\alpha]\times [-\tilde{M}_\eta,\tilde{M}_\eta]^{k'};\bb R^{k'})} \|\tilde{\eta}_j\|_{C^{s'}(\Omega;\bb R^{k'})}\\
+        &\leq C_0 \delta \tilde{M_\eta}.
+    \end{aligned}
+    $$
+    Thus, for any $|\alpha|, |\tilde{\alpha}| \leq M_\alpha$, we obtain
+    $$
+    \begin{aligned}
+        \|\times (a,\eta_j(\cdot)) - &\tilde{\times}(\tilde{a},\tilde{\eta}_j(\cdot))\|_{C^{s'}(\Omega;\bb R^{k'})}\\
+        &\leq \|\times (a,\eta_j(\cdot)) - \times(\tilde{a},\eta_j(\cdot))\|_{C^{s'}(\Omega;\bb R^{k'})}\\
+        & \qquad + \|\times(\tilde{a},\eta_j(\cdot)) - \times(\tilde{a},\tilde{\eta}_j)\|_{C^{s'}(\Omega;\bb R{k'})}\\
+        & \leq |a-\tilde{a}|M_\eta + M_\alpha\|\eta_j - \tilde{\eta}_j\|_{C^{s'}(\Omega;\bb R^{k'})} + C_0\delta\tilde{M}_\eta.
+    \end{aligned}
+    $$
+From equation \ref{eq15} and \ref{eq17}, we bound the first two terms, and choosing $\delta := \epsilon/(6NC_0\tilde{M}_\eta)$ in equation \ref{eq19}, it follows that 
+$$ \|\times(a,\eta_j(\cdot)) - \tilde{\times}(\tilde{a},\tilde{\eta}_j(\cdot))\|_{C^{s'}(\Omega;\bb R^k)} \leq \epsilon/2J,$$
+for any $|a|,|\tilde{a}| \leq M_\alpha$. By definition of $M_\alpha$, given arbitrary $u \in K$, we have $|\alpha_j(u)| \leq M_\alpha$ and $|\tilde{\alpha}_j(u)| \leq M_\alpha.$ Hence, the above estimates implies that 
+\begin{equation}\label{eq20}
+    \sup_{u \in K}\|\alpha_j(u)\eta_j - \tilde{\times}(\tilde{\alpha}_j(u),\tilde{\eta}_j(\cdot))\|_{C^{s'}(\Omega;\bb R^k)} \leq \epsilon/2J.
+\end{equation}
+The mapping $\bb R\times \Omega \to \bb R^{k'}, (a,x)\mapsto \tilde{\times}(a,\tilde{\eta}_j(x))$ is an ordinary neural network in $(a,x)$. Since $\tilde{\alpha}_j$ is an averaging neural operator by construction (Lemma \ref{A.9}), we can write it in the form $\tilde{Q}\circ\cal L_L \circ\dots\circ\cal L_1 \circ \cal R,$ in terms of a raising operator $\cal R$, hidden layer $\cal L_l$, and a projection layer $\tilde{Q}$, where the values $\tilde{Q}(v)(x) := \tilde{Q}(v)(x) \in \bb R$ are given in terms of an ordinary neural network $\tilde{Q}.$ Let $\cal Q$ denote the composition $\cal Q(v)(x) := \tilde{\times}(\tilde{Q}(v(x),x),\tilde{\eta}_j(x)).$ Then
+$$ \Psi(u) := \cal Q \circ \cal L_L\circ \circ \dots \circ \cal L_1 \circ \cal R(u),$$
+defined an averaging neural operator, for which
+$$ \Psi(u)(x) = \tilde{\times}(\tilde{\alpha}_j(u),\tilde{\eta}_j(x)).$$
+Above relation is true since given $\tilde{\alpha}_j$ as composition, its output will be output of $\tilde{\cal Q}(v)(x)$ which is same as $\tilde{Q}(v(x),x)$, and $\Psi$'s output depends upon $\cal Q$ which is defined above. Considering all these facts, above relation comes out to be true.
+
+\noindent By \ref{eq20}, it follows that 
+$$ \|\alpha_j(u)\eta_j - \Psi(u)\|_{C^{s'}} \leq \epsilon/2J.$$
+This concludes the proof of \nameref{claim1}.
+\end{proof}
+
+\paragraph{\bf Proof of Universal Approximation $C^s \to C^{s'}$, Theorem \ref{thm2.2}}
+This section provides the proof in the scale of Sobolev spaces. The proof is similar to the case of spaces of continuity differentiable functions hence only the alteration to the proof have been mentioned here.
+\begin{proof}(Theorem \ref{thm2.2}
+    Let $\Psi^\dag : W^{s,p}(\Omega;\bb R^k) \to W^{s',p'}(\Omega;\bb R^{k'})$ be a continuous operator with integer $s,s' \geq 0$ and $p, p' \in [1,\infty)$. Let $K \subset W^{s,p}(\Omega;\bb R^k)$ be compact, consisting of bounded functions, $\sup_{u\in K}\|u\|_{L^\infty} < \infty.$ We aim to show that for any $\epsilon> 0$, there exists an averaging neural operator $\Psi$ of the form $\Psi = \cal Q \circ L_L \circ \dots \circ L_1 \circ\cal R,$ such that 
+    $$ \sup_{u\in K}\|\Psi^\dag(u) - \Psi(u)\|_{W^{s',p'}} \leq \epsilon.$$
+    Fix $\epsilon > 0$. By Proposition \ref{A.8}, there exist functions $\eta_1, \dots, \eta_J \in W^{s',p'}(\Omega;\bb R^{k'}),$ and continuous functionals $\alpha_1, \dots, \alpha_J : L^1(\Omega;\bb R^k) \to \bb R,$ such that
+    $$ \sup_{u\in K}\|\Psi^\dag(u) - \sum\nolimits_{j=1}^{J}\alpha_j(u)\eta_j\|_{W^{s',p'}} \leq \epsilon/3.$$
+    Approximating each $\eta_j$ by its boundary-adapted mollification, $\eta_j,\delta := \cal M_{\delta}\eta_j \in C^\infty(\overline{\Omega};\bb R^{k'})$ with $\delta > 0$ choose sufficiently small (Lemma \ref{A.2}), we can ensure that
+    $$\sup_{u\in K}\|\Psi^\dag(u) - \sum\nolimits_{j=1}^{J}\alpha_j(u)\eta_{j,\delta}\|_{W^{s',p'}} \leq 2\epsilon/3.$$
+    Also, we know that $C^{s+1}(\overline{\Omega};\bb R^k) \hookrightarrow W^{s',p'}(\Omega;\bb R^{k'})$ has a continuous embedding, hence there exists a constant $C_0 > 0$, such that
+    \begin{equation}
+        v\|_{W^{s',p'}} \leq C_0\|v\|_{C^{s'+1}}, \forall v\in C^{s'+1}(\overline{\Omega};\bb R^{k'}).
+\end{equation}
+We note that $u \mapsto \sum_{j=1}^{J}\alpha_j(u)\eta_{j,\delta}$ denotes a continuous operator $L^1(\omega;\bb R^k) \to C^{s'+1}(\overline{\Omega};\bb R^{k'})$ and recall that, by assumption, $K \subset W^{s,p}(\Omega;\bb R^k) \subset L^1(\Omega;\bb R^k)$ is a compact set consisting of bounded function, $\sup_{u\in K}\|U\|_{L^\infty} < \infty$. It thus follows from \nameref{claim1} that there exists an averaging neural operator $\Psi:L^1(\Omega;\bb R^k) \to C^{s'+1}(\overline{\Omega};\bb R^{k'}),$ such that 
+$$ \sup_{u\in K}\|\sum\nolimits_{j=1}^{J}\alpha_j(u)\eta_{j,\delta} - \Psi(u)\|_{C^{s'+1}} \leq \epsilon/3C_0,$$
+where $C_0 > 0$ denotes the embedding constant of \ref{eq20}. For this averaging neural operator $\Psi$, it follows that 
+$$ 
+\begin{aligned}
+    \sup_{u\in K}\|\Psi^\dag(u) - \Psi(u)\|_{W^{s',p'}} &\leq \sup_{u\in K}\|\Psi^\dag (u) - \sum\nolimits_{j=1}^{J} \alpha_j(u) \eta_{j,\delta}\|_{W^{s',p'}}\\
+    &\qquad +\sup_{u\in K}\|\sum\nolimits_{j=1}^{J}\alpha_j(u)\eta_{j,\delta}-\Psi(u)\|_{W^{s',p'}}\\
+    &\leq \sup_{u\in K}\|\Psi^\dag(u) - \sum\nolimits_{j=1}^{J}\alpha_j(u)\eta_{j,\delta}\|_{W^{s',p'}} \\
+    & \qquad + C_0\sup_{u\in K}\|\sum\nolimits_{j=1}^{J}\alpha_j(u)\eta_{j,\delta} -\Psi(u) \|_{C^{s'+1}}\\
+    &\leq \epsilon.
+\end{aligned}
+$$
+This concludes our proof.
+\end{proof}
+
 \appendix
 \section{Detailed proofs} \label{appendix:A}
 \begin{lem}
