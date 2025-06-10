@@ -1,0 +1,82 @@
+%% Credits of this ams template are with respective people. @Devansh1106 neither own this template nor the credits. 
+\documentclass[reqno,9pt]{amsart}
+
+\usepackage[numbers]{natbib}
+\setlength{\bibsep}{8pt}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{lineno}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{esint}
+\usepackage{fancyhdr}
+\setlength{\parskip}{0.5\baselineskip}%
+\setlength{\parindent}{20pt}
+\theoremstyle{plain}
+
+\pagestyle{fancy}
+\fancyhf{} % Clear default headers/footers
+\setlength{\headheight}{10.0pt}
+% Even pages: Paper title
+\fancyhead[LE]{\footnotesize\textit{Nonlocality and Nonlinearity Implies Universality}}
+
+% Odd pages: Author name
+\fancyhead[RO]{\footnotesize\textit{Devansh Tripathi}}
+
+\newtheorem*{thm*}{Theorem}
+%% this allows for theorems which are not automatically numbered
+
+\renewcommand{\qedsymbol}{$\blacksquare$}
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{prop}{Proposition}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{eg}{Example}
+\newtheorem{rem}{Remark}
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cal}[1]{\mathcal{#1}}
+
+\hypersetup{
+    colorlinks=false,
+    linkcolor=blue,    % Internal links (sections, equations)
+    citecolor=red,     % Citation links
+    urlcolor=magenta   % URLs (DOIs, websites)
+}
+%% The above lines are for formatting.  In general, you will not want to change these.
+
+\title{Report on the paper ``Convolutional Neural Operator for robust and accurate learning of PDEs''}
+\author{Devansh Tripathi$^1$ \\ ETH Z\lowercase{\"urich}}
+\thanks{$^1$Seminar für Angewandte Mathematik, HG E 62.2, Rämistrasse 101, 8092 Zürich, Switzerland \\ \href{mailto:devansh.tripathi@sam.math.ethz.ch}{\texttt{devansh.tripathi@sam.math.ethz.ch}}}
+
+\begin{document}
+\numberwithin{equation}{section}
+
+\begin{abstract}
+    In the paper \cite{BR2023}, the author argues that the convolution based neural network architectures -- believed to be inconsistent in function space -- have been largely ingnored in the context of learning solution operators of PDEs. The author present a novel framework termed as convolutional neural operators (CNOs) that is designed specifically to preserve its underlying continuous nature, even when implemented in a discretized form on a computer. The author also proved a universal approximation result for CNOs.
+\end{abstract}
+\maketitle
+\section{\bf \large Introduction}
+    Given the ubiquitous nature of partial differential equations (PDEs) as mathematical models in the science and engineering, it becomes important to develop method to approximate the solutions to a PDE with less computational cost. There are well-established numerical methods such as finite differences, finite elements, finite volumes and spectral methods that have been successfully used to approximate PDE solution operator. Hwoever, the high computational cost of these methods, particularly in high dimensions and for {\it many query} problems such Uncertainity Quantification (UQ), inverse problems etc. calls upon the design of {\it fast, robus and accurate} surrogates.
+
+    \noindent As {\it operators} are the objects of interest in solving PDEs, learning such operators from data which is loosely termed as {\it operator learning}, has emerged as a dominant paradigm in recent years. As it is argued in a recent paper \cite{FB2023}, a structure-preserving operator learning algorithm or {\it representation equivalent neural operator} has to respect some form of continuous-discrete equivalence (CDE) in order to learn the underlying operator, rather than just a discrete representation of it. Failure to respect such a CDE can lead to the so-called aliasing errors \cite{FB2023} and affect model performance at multiple discrete resolutions.
+
+    \noindent The naive use of convolutional neural networks (CNNs) in the context of operator learning, see \cite{FB2023,Zhu2018,ZL2021} on how using CNNs for operator learning leads to results that heavily rely on the underlying grid resolution. The author has made the following contributions in this paper:
+    \begin{itemize}
+        \item The author proposes novel modifications to CNNs in order to enforce structure-preserving continuous-discrete equivalence (CDE) and enable the genuine, alias-free, learning of operators. The  resulting architecture, termed as {\it Convolutional Neural Operator}(CNO), is provided as novel {\it operator} adaptation of the widely used U-Net architecture.
+        \item The author has shown that CNO is a {\it representation equivalent neural operator} in the sense of \cite{FB2023}, and also proved a universality result for CNOs to any desired accuracy.
+        \item CNO has been tested on a {\it novel} set of benchmarks, known as {\it Representative PDE Benchmarks}(RPB), that span across a variety of PDEs ranging from linear elliptic and hyperbolic to nonlinear parabolic and hyperbolic PDEs, with possibly {\it multiscale solutions}. 
+    \end{itemize}
+
+    \section{Convolutional Neural Operator}
+    \paragraph{\bf Setting} For simplicity, we will focus here on the two-dimensional case by specifying the underlying domain as $D = \bb T^2$, being the $2$-d torus. Let $\cal X = H^r(D,\bb R^{d_{\cal X}}) \subset \cal Z$ and $\cal Y = H^s(D,\bb R_{d_\cal Y})$ be the underlying function spaces, where $H^{r,s}(D,\cdot)$ are sobolev spaces of order $r$ and $s$. Without loss of generality, we set $r = s$ hereafter. Our aim would be to aproximate {\it continuous operators}$\cal G^\dag : \cal X \to \cal Y$ from data pairs $(u_i, \cal G^\dag(u_i))_{i=1}^M \in \cal X \times \cal Y$. We furthur assume that there exists a {\it modulus of continuity} for the operator i.e.,
+    \begin{equation}
+        \|\cal G^\dag(u) - \cal G^\dag(v)\|_{\cal Y} \leq \omega(\|u - v\|_{\cal Z}), \qquad \forall u,v \in \cal X,
+    \end{equation}
+    with $\omega : \bb R_+ \to \bb R_+$ being a monotonically increasing function with $\lim_{y\to 0}\omega(y) = 0$ (implies that the operator $\cal G^\dag$ is uniformly continuous) The underlying operator $\cal G^\dag$ can corresponds to solution operators for PDEs but is more general that that and encompasses examples such as those arising in inverse problems, for instance in imaging.
+\bibliographystyle{plainnat}
+\bibliography{ref_cno}
+\end{document}

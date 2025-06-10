@@ -1,0 +1,90 @@
+%% Credits of this ams template are with respective people. @Devansh1106 neither own this template nor the credits. 
+\documentclass[reqno,9pt]{amsart}
+
+\usepackage[numbers]{natbib}
+\setlength{\bibsep}{8pt}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{lineno}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{esint}
+\usepackage{fancyhdr}
+\setlength{\parskip}{0.5\baselineskip}%
+\setlength{\parindent}{20pt}
+\theoremstyle{plain}
+
+\pagestyle{fancy}
+\fancyhf{} % Clear default headers/footers
+\setlength{\headheight}{10.0pt}
+% Even pages: Paper title
+\fancyhead[LE]{\footnotesize\textit{Nonlocality and Nonlinearity Implies Universality}}
+
+% Odd pages: Author name
+\fancyhead[RO]{\footnotesize\textit{Devansh Tripathi}}
+
+\newtheorem*{thm*}{Theorem}
+%% this allows for theorems which are not automatically numbered
+
+\renewcommand{\qedsymbol}{$\blacksquare$}
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{prop}{Proposition}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{eg}{Example}
+\newtheorem{rem}{Remark}
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cal}[1]{\mathcal{#1}}
+
+\hypersetup{
+    colorlinks=false,
+    linkcolor=blue,    % Internal links (sections, equations)
+    citecolor=red,     % Citation links
+    urlcolor=magenta   % URLs (DOIs, websites)
+}
+%% The above lines are for formatting.  In general, you will not want to change these.
+
+\title{Report on the paper ``Sampling -- 50 Years After Shanon''}
+\author{Devansh Tripathi$^1$ \\ ETH Z\lowercase{\"urich}}
+\thanks{$^1$Seminar für Angewandte Mathematik, HG E 62.2, Rämistrasse 101, 8092 Zürich, Switzerland \\ \href{mailto:devansh.tripathi@sam.math.ethz.ch}{\texttt{devansh.tripathi@sam.math.ethz.ch}}}
+
+\begin{document}
+\numberwithin{equation}{section}
+
+\begin{abstract}
+    This document contains the important notes taken from the paper \cite{MU2000}. The emphasis is on the {\it regular} sampling, where the grid is uniform. This document introduce the reader to the modern, Hilbert-space formulation, we reinterpret Shanon's sampling procedure as an orthogonal projection onto the subspace of band-limited functions. Then the standard sampling paradigm is extended for a representation of functions in the more general class of ``shift-invariant'' function spaces, including splines and wavelets.  Practically, this allows for simpler and possibly more realistic—interpolation models, which can be used in conjunction with a much wider class of (anti-aliasing) prefilters that are not necessarily ideal low-pass. The report summarizes and discuss the results available for the determination of the approximation error and of the sampling rate when the input of the system is essentially arbitrary; e.g., nonbandlimited.
+
+    \vspace{1em}
+    \paragraph{\bf Keywords} Bandlimited, Hilbert spaces, Anti-aliasing.
+\end{abstract}
+\maketitle
+\section{\bf \large Introduction}
+    In 1949, Shannon published the paper “Communication in
+    the Presence of Noise,” which set the foundation of information theory. n order to formulate his rate/distortion theory, Shannon needed a general mechanism for converting an analog signal into a sequence of numbers. This led him to state the classical sampling theorem at the very beginning of his paper in the following terms:
+    \begin{thm}[Shannon]
+        If a function $f(x)$ contains no frequencies higher than $\omega_{max}$(in radians per second), it is completely determined by giving its ordinates at a series of points spaced $T = \pi/\omega_{max}$ seconds apart.
+    \end{thm}
+    The reconstruction formula that complements the sampling theorem is 
+    \begin{equation}\label{eqrf}
+        f(x) = \sum_{k\in \bb Z} f(kT) sinc(x/T-k)
+    \end{equation}
+    in which the equidistant samples of $f(x)$ may be interpreted as coefficients of some basis functions obtained by appropriate shifting and rescaling of the sinc-function: $sinc(x) = \sin(\pi x)/(\pi x)$. Formula \ref{eqrf} is exact if $f(x)$ is bandlimited to $\omega_{max} \leq \pi/T$; this upper limit is the Nyquist frequency, a term coined by Shannon. In mathematical literature \ref{eqrf} is known as cardinal series expansion attributed to Whittaker \cite{Whittaker_1915,PLB1983}. Sampling theorem tells us how to convert an analog signal into a sequence of numbers, which can then be processed digitally or coded on a computer. 
+
+    \paragraph{\bf Issues associated with Shanon's result}
+    \begin{itemize}
+        \item It is an idealization; real world signals or images are never exactly bandlimited.
+        \item There is no such device as an ideal (anti-aliasing or reconstruction) low-pass filter.
+        \item Shanon's reconstruction formula is rarely used in practice due to the slow decay of the sinc function. Instead, much simpler techniques such as linear interpolation are used.
+    \end{itemize}
+    \paragraph{\bf What is aliasing and anti-aliasing?} {\bf Aliasing:} When a signal is sampled, frequencies above the Nyguist frequency ``fold back'' into the sampled signal as lower frequencies, corrupting the data. A low-pass filter (LPF) with a cutoff is applied to eliminate these problematic frequencies. It removes the high signals above a cutoff and allows the signals lower than that cutoff to pass.
+
+    \paragraph{\bf Anti-Aliasing:} Anti-aliasing is the process of removing or attenuating high-frequency components from a signal before sampling to prevent aliasing artifacts.
+
+    
+\bibliographystyle{plainnat}
+\bibliography{ref}
+\end{document}
