@@ -32,6 +32,7 @@
 \renewcommand{\qedsymbol}{$\blacksquare$}
 \newtheorem{thm}{Theorem}
 \newtheorem{lem}{Lemma}
+\newtheorem*{lem*}{Lemma}
 \newtheorem{prop}{Proposition}
 \theoremstyle{definition}
 \newtheorem{defn}{Definition}
@@ -72,11 +73,39 @@
     \end{itemize}
 
     \section{Convolutional Neural Operator}
-    \paragraph{\bf Setting} For simplicity, we will focus here on the two-dimensional case by specifying the underlying domain as $D = \bb T^2$, being the $2$-d torus. Let $\cal X = H^r(D,\bb R^{d_{\cal X}}) \subset \cal Z$ and $\cal Y = H^s(D,\bb R_{d_\cal Y})$ be the underlying function spaces, where $H^{r,s}(D,\cdot)$ are sobolev spaces of order $r$ and $s$. Without loss of generality, we set $r = s$ hereafter. Our aim would be to aproximate {\it continuous operators}$\cal G^\dag : \cal X \to \cal Y$ from data pairs $(u_i, \cal G^\dag(u_i))_{i=1}^M \in \cal X \times \cal Y$. We furthur assume that there exists a {\it modulus of continuity} for the operator i.e.,
+    \paragraph{\bf Setting} For simplicity, we will focus here on the two-dimensional case by specifying the underlying domain as $D = \bb T^2$, being the $2$-d torus. Let $\cal X = H^r(D,\bb R^{d_{\cal X}}) \subset \cal Z$ and $\cal Y = H^s(D,\bb R_{d_\cal Y})$ be the underlying function spaces, where $H^{r,s}(D,\cdot)$ are sobolev spaces of order $r$ and $s$. Without loss of generality, we set $r = s$ hereafter. Our aim would be to aproximate {\it continuous operators} $\cal G^\dag : \cal X \to \cal Y$ from data pairs $(u_i, \cal G^\dag(u_i))_{i=1}^M \in \cal X \times \cal Y$. We furthur assume that there exists a {\it modulus of continuity} for the operator i.e.,
     \begin{equation}
         \|\cal G^\dag(u) - \cal G^\dag(v)\|_{\cal Y} \leq \omega(\|u - v\|_{\cal Z}), \qquad \forall u,v \in \cal X,
     \end{equation}
     with $\omega : \bb R_+ \to \bb R_+$ being a monotonically increasing function with $\lim_{y\to 0}\omega(y) = 0$ (implies that the operator $\cal G^\dag$ is uniformly continuous) The underlying operator $\cal G^\dag$ can corresponds to solution operators for PDEs but is more general that that and encompasses examples such as those arising in inverse problems, for instance in imaging.
+    \paragraph{\bf Bandlimited Approximation} As argued in the paper \cite{FB2023} that Sobolev spaces such as $H^r$ are, in a sense, too large to allow for any {\it continuous-discrete equivalence} (CDE), i.e. equivalence between the underlying operator and its discrete representations, which is necessary for robust operator learning. We have to consider small subspaces of $H^r$ which allow for such CDEs. We choose the space of {\it bandlimited functions} defined by,
+    \begin{equation}
+        B_w(D) = \{f \in L^2(D) : \text{supp}\hat{f} \subseteq [-w,w]^2\},
+    \end{equation}
+    for some $w > 0$ and with $\hat{f}$ denoting the Fourier transform of $f$. From 
+
+    \appendix
+    \section{Detailed proofs} \label{appendix:A}
+    \subsection[A.1]{Approximation of Operators mapping between Sobolev spaces by operators mapping between spaces of bandlimited functions}
+    We prove that one can approximate any continuous operator $\cal G^\dag : \cal X \to \cal Y$ by an operator mapping between spaces of bandlimited functions to arbitrary accuracy. We obtain this result by dsicarding the high-frequency components, higher than the frequency $w$, of both the input and the output of $\cal G^\dag$ by a Fourier projection $P_w$. For orthogonal Fourier projections and also trigonometric polynomial interpolation, the following result on the accuracy of the projection holds,
+
+    \begin{lem*}[A.1] \label{lemA1}
+        Given $\sigma, r \in \bb N_0$ with $r > d/2$ and $r \geq \sigma$, and $f \in C^r(\bb T^d)$ it holds for every $w \in \bb N$ that, 
+        \begin{equation}
+            \|f - P_w(f)\|_{H^\sigma(\bb T^d)} \leq C(r,d)w^{-(r-\sigma)}\|f\|_{H^r(\bb T^d)},
+        \end{equation}
+        for a constant $C(r,d) > 0$ that only depends on $r$ and $d$.
+    \end{lem*}
+    By choosing an appropriate frequency cutoff and then discarding the high frequencies of the input and output of $\cal G^\dag$ one can approximate $\cal G^\dag$ to arbitrary accuracy as shown in the result below.
+    
+    \begin{lem*}[A.2]
+        For any $\epsilon, B > 0$ there exist $w \in \bb N$ such that $\|\cal G^\dag(a) - P_w\cal G^\dag(P_wa)\|_{L^2(D)} \leq \epsilon$ for all $a \in H^r(D)$ with $\|a\|_{H^r(D)} \leq B$.        
+    \end{lem*}
+    \begin{proof}
+                
+    \end{proof}
+
+
 \bibliographystyle{plainnat}
 \bibliography{ref_cno}
 \end{document}
