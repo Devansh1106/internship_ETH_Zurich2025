@@ -1,6 +1,6 @@
 %% Credits of this ams template are with respective people. @Devansh1106 neither own this template nor the credits. 
-\documentclass[reqno,9pt]{amsart}
-
+\documentclass[reqno,10pt]{amsart}
+\usepackage[a4paper, margin=1.25in]{geometry} % Change 1in to desired size
 \usepackage[numbers]{natbib}
 \setlength{\bibsep}{8pt}
 \usepackage{graphicx}
@@ -28,7 +28,7 @@
 
 \newtheorem*{thm*}{Theorem}
 %% this allows for theorems which are not automatically numbered
-
+\newcommand{\sinc}{\text{sinc}}
 \renewcommand{\qedsymbol}{$\blacksquare$}
 \newtheorem{thm}{Theorem}
 \newtheorem{lem}{Lemma}
@@ -74,7 +74,7 @@
 
     \section{Convolutional Neural Operator}
     \paragraph{\bf Setting} For simplicity, we will focus here on the two-dimensional case by specifying the underlying domain as $D = \bb T^2$, being the $2$-d torus. Let $\cal X = H^r(D,\bb R^{d_{\cal X}}) \subset \cal Z$ and $\cal Y = H^s(D,\bb R_{d_\cal Y})$ be the underlying function spaces, where $H^{r,s}(D,\cdot)$ are sobolev spaces of order $r$ and $s$. Without loss of generality, we set $r = s$ hereafter. Our aim would be to aproximate {\it continuous operators} $\cal G^\dag : \cal X \to \cal Y$ from data pairs $(u_i, \cal G^\dag(u_i))_{i=1}^M \in \cal X \times \cal Y$. We furthur assume that there exists a {\it modulus of continuity} for the operator i.e.,
-    \begin{equation}
+    \begin{equation}\label{eq2.1}
         \|\cal G^\dag(u) - \cal G^\dag(v)\|_{\cal Y} \leq \omega(\|u - v\|_{\cal Z}), \qquad \forall u,v \in \cal X,
     \end{equation}
     with $\omega : \bb R_+ \to \bb R_+$ being a monotonically increasing function with $\lim_{y\to 0}\omega(y) = 0$ (implies that the operator $\cal G^\dag$ is uniformly continuous) The underlying operator $\cal G^\dag$ can corresponds to solution operators for PDEs but is more general that that and encompasses examples such as those arising in inverse problems, for instance in imaging.
@@ -102,10 +102,43 @@
         For any $\epsilon, B > 0$ there exist $w \in \bb N$ such that $\|\cal G^\dag(a) - P_w\cal G^\dag(P_wa)\|_{L^2(D)} \leq \epsilon$ for all $a \in H^r(D)$ with $\|a\|_{H^r(D)} \leq B$.        
     \end{lem*}
     \begin{proof}
-                
+        Using Lemma \ref{lemA1} and stability of $\cal G^\dag$, equation \ref{eq2.1}, we have
+        $$
+        \begin{aligned}
+            \|\cal G^\dag(a) - P_w\cal G^\dag(P_wa)\|_{L^2} &\leq \|\cal G^\dag(a) - P_w\cal G^\dag(a)\|_{L^2} + \|P_w\cal G^\dag(a) - P_w\cal G^\dag(P_wa)\|_{L^2}
+        \end{aligned}
+        $$
+        Since, $\cal G^\dag : H^r(D;\bb R^{d_{\cal X}}) \to H^s(D;\bb R^{d_{\cal Y}})$, we have $\cal G(a) \in H^s(D;\bb R^{d_{\cal Y}})$. In order to apply Lemma \ref{lemA1}, we need to show that $\cal G^\dag(a) \in C^r(D)$. Note that $H^s(D) \hookrightarrow C^r(D)$ for all $s > r + d/2$ which will imply that $\cal G^\dag (a) \in C^r(D)$. Also, note that $P_w$(Fourier projection operator) is {\it non-expansive} ($L^2$-norm is less than $1$). Taking $\sigma = 0$ in Lemma \ref{lemA1}, we have 
+        \begin{equation}            
+        \begin{aligned}
+            \left\|\cal G^\dag(a) - P_w\cal G^\dag(P_wa)\right\|_{L^2} &\leq \left\|\cal G^\dag(a) - P_w\cal G^\dag(a)\right\|_{L^2} + \left\|P_w\cal G^\dag(a) - P_w\cal G^\dag(P_wa)\right\|_{L^2} \\
+            (\because H^0(D) = L^2(D)) \qquad &= \left\|\cal G^\dag(a) - P_w\cal G^\dag(a)\right\|_{H^0} + \left\|P_w\cal G^\dag(a) - P_w\cal G^\dag(P_wa)\right\|_{L^2}\\
+            (\text{Lemma A.1 and non-expansive}) \qquad &\lesssim w^{-r} \left\|\cal G^\dag (a)\right\|_{H^r} + \left\|\cal G^\dag (a) - \cal G^\dag(P_wa)\right\|_{L^2}\\
+            &\lesssim w^{-r}\|\cal G^\dag\|_{op}\|a\|_{H^r} + \omega(\|a - P_wa\|_{H^\sigma})\\
+            &\lesssim w^{-r}\|\cal G^\dag\|_{op}\|a\|_{H^r} + \omega (Cw^{-(r-\sigma)}\|a\|_{H^r}).
+        \end{aligned}
+    \end{equation}
     \end{proof}
+    Since above relation is true for all $a$ such that $\|a\|_{H^r} \leq B$, it follows that for large enough $w$:
+    \begin{equation}
+        \sup\limits_{\|a\|_{H^r}\leq B} \left\|\cal G^\dag(a) - P_w\cal G^\dag(P_wa)\right\|_{L^2} \leq \epsilon.
+    \end{equation}
+    Given that both $P_wa \in B_w(D)$ and $P_w\cal G^\dag(P_wa) \leq B_w(D)$, a consequence of the above lemma is the existence of an operator $\cal G^* " B_w(D) \to B_w(D):a \mapsto P_w(\cal G^\dag(a))$ that can approximate $\cal G^\dag$ arbitrarily well. Hence $\left\|\cal G^\dag - \cal G^*\right\|_{op} \leq \epsilon$, where the operator are considered as mapping from and to $B_w(D) \cap H^r(D)$ equipped with the $H^r(D)$-norm.
 
-
+    \subsection{Continuous-Discrete Equivalence for Operator \texorpdfstring{$\cal G^*$}{}}
+    For every $w > 0$, we denote by $B_w(\bb R^2)$ the space of multivariate bandlimited functions
+    $$B_w(\bb R^2) = \{f \in L^2(\bb R^2) : \text{supp}\hat{f} \subset eq [-w,w]^2\},$$
+    where $\hat{f}$ denotes the Fourier transform on $L^1(\bb R)$ 
+    $$ \hat{f}(\xi) := \int_{\bb R}f(x) e^{-2\pi ix\xi} dx, \qquad \xi \in \bb R,$$
+    which extends to $L^2(\bb R)$ by a classical density argument ($L^1(\bb R^n) \cap L^2(\bb R^n)$ is dense in $L^2(\bb R^n), n \geq 1$.) The set $\Psi_w = \{\sinc(2wx_1 - m) \cdot \sinc(2wx_2 - n)\}_{m,n \in \bb Z}$ constitutes an orthonormal basis for $B_w(\bb R^2)$. The bounded operator
+    $$ T_{\Psi_w} :l^2(\bb Z^2) \to B_w(\bb R^2), ~~ T_{\Psi_w}(c_{m,n}) = \sum_{m,n\in \bb Z} c_{m,n} \sinc(2w\cdot - m)\cdot \sinc(2w\cdot -n),$$
+    which reconstructs a function from its basis coefficients, is called {\it synthesis operator,} and its adjoint 
+    $$ T^*_{\Psi_w} : B_w(\bb R^2) \to l^2(\bb Z^2), \qquad T^*_{\Psi_w} f = \left\{f\left(\frac{m}{2w},\frac{n}{2w}\right)\right\}_{m,n \in \bb Z},$$
+    which extracts basis coefficients from an underlying function, is called {\it analysis operator}.  Every bandlimited function can be uniquely and stably recovered from its sampled values $\left\{f\left(\frac{m}{2w},\frac{n}{2w}\right)\right\}$ for ${m,n \in \bb Z}$ via the reconstruction formula
+    \begin{equation}
+        f(x_1,x_2) = T_{\Psi_w}T^*_{\Psi_w}f(x_1,x_2) = \sum\limits_{m,n \in \bb Z} f\left(\frac{m}{2w},\frac{n}{2w}\right) \sinc(2wx_1 - m) \cdot \sinc(2wx_2 - n),
+    \end{equation}
+    and we say that there is a {\it continuous-discrete equivalence (CDE)} between $f$ and its samples $\left\{f\left(\frac{m}{2w},\frac{n}{2w}\right)\right\}$. In general, every bandlimited function $f \in B_w(\bb R^2)$ cam be uniquely and stably recovered from its sample values $\{f(mT,nT)\}_{m,n\in\bb Z}$ if the {\it sampling rate} or reciprocal of grid size, $1/T$ is greater or equal than the {\it Nyquist rate} $2w$.
 \bibliographystyle{plainnat}
 \bibliography{ref_cno}
 \end{document}
