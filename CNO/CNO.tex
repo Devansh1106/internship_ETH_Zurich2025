@@ -83,11 +83,49 @@
     \begin{equation}
         B_w(D) = \{f \in L^2(D) : \text{supp}\hat{f} \subseteq [-w,w]^2\},
     \end{equation}
-    for some $w > 0$ and with $\hat{f}$ denoting the Fourier transform of $f$. From 
+    for some $w > 0$ and with $\hat{f}$ denoting the Fourier transform of $f$. It is shown in appendix \ref{appendix:A.1} that for any $\varepsilon > 0$, there exists a $w$, large enough depending on $r$, and a continuous operator $\cal G^* : B_w(D) \to B_w(D)$, such that $\|\cal G^\dag - \cal G^*\| \leq \varepsilon,$ with $\|\cdot\|$ denoting the corresponding operator norm. Along with that \ref{appendix:A.2} shows that we can define discrete versions of $\cal G^*$ using the underlying $sinc$ basis for bandlimited functions and establish a continuously-discrete equivalence for it.
+
+    \paragraph{\bf Definition of CNO} Given above context, our goal will be approximate the operator $\cal G^*$ in a {\it structure-preserving manner} i.e. as the underlying operator maps between spaces of bandlimited functions, we will construct out operator approximation architecture to also map bandlimited functions to bandlimited functions, thus respecting the continuous-discrete equivalence.
+
+    \noindent We denote the operator $\cal G : B_w(D) \to B_w(D)$ as a {\it convolutional neural operator} (CNO) which we define as a compositional mapping between functions as
+    \begin{equation}\label{eq2.3}
+        \cal G : u \mapsto P(u) = v_0 \mapsto v_1 \mapsto \dots v_L \mapsto Q(v_L) = \overline{u},
+    \end{equation}
+    where
+    \begin{equation}
+        v_{l+1} = \cal P_l \circ \Sigma_l \circ \cal K_l(v_l), \qquad 1 \leq l \leq L - 1.
+    \end{equation}
+    From \ref{eq2.3}, we see that first, the input function $u \in B_w(D)$ is lifted to the latent space of bandlimited functions through a {\it lifting layer}: 
+    $$ P : \left\{u \in B_w(D,\bb R^{d_{\cal X}}) \right\} \to \left\{u \in B_w(D,\bb R^{d_0}) \right\}$$ 
+    Here, $d_0 > d_{\cal X}$ is the number of channels in the lifted, latent space. The lifting operation is performed by a convolution operator which will be defined below.
+
+    \noindent Then, the lifted function is processed through the composition of a series of mappings between functions (layers), with each layer consisting of three elementary mappings, i.e. $\cal P_l$ is either the {\it upsampling} or {\it downsampling} operator, $\cal K_l$ is the convolution operator and $\Sigma_l$ is the activation operator $Q$, defined as 
+    $$ Q : \left\{v_L \in B_w(D,\bb R^{d_L}) \right\} \to \left\{\overline{u} \in B_w(D,\bb R^{d_{\cal Y}}) \right\}.$$
+    The projection operation is also performed by a convolution operator defined below.
+
+    \paragraph{\bf Convolution Operator} For simplicity, {\it single channel} version of the convolution operator $K_l$ is presented here. See appendix \ref{} for {\it multi-scale} version. Convolution operations are performed with discrete kernals
+    $$ K_w = \sum_{i,j=1}^{k} k_{ij} \cdot \delta_{z_{ij}}$$
+    defined on a $s \times s$ uniform grid on $D$ with grid size $\geq 1/2w$, in-order to satisfy the requirements of the Whittaker-Shannon Kotelnikov sampling theorem \cite{MU2000}, and $z_{ij}$ being the resulting grid points, $k \in\bb N$ being kernel size and $\delta_x$ denoting the Dirac measure at point $x\in D$. The convolution operator for a {\it single-channel} $K_w : B_w(D) \to B_w(D)$ is defined by 
+    $$ \cal K_wf(x) = (K_w \star f)(x) = \int_D K_w(x-y)f(y) dy = \sum_{i,j=1}^{k} k_{i,j} f(x-z_{ij}), \qquad \forall x\in D,$$
+    where the last identity arises from the fact that $f \in B_w$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     \appendix
-    \section{\bf Detailed proofs} \label{appendix:A}
-    \subsection[A.1]{Approximation of Operators mapping between Sobolev spaces by operators mapping between spaces of bandlimited functions}
+    \section{\bf Detailed proofs}
+    \subsection[A.1]{Approximation of Operators mapping between Sobolev spaces by operators mapping between spaces of bandlimited functions} \label{appendix:A.1}
     We prove that one can approximate any continuous operator $\cal G^\dag : \cal X \to \cal Y$ by an operator mapping between spaces of bandlimited functions to arbitrary accuracy. We obtain this result by dsicarding the high-frequency components, higher than the frequency $w$, of both the input and the output of $\cal G^\dag$ by a Fourier projection $P_w$. For orthogonal Fourier projections and also trigonometric polynomial interpolation, the following result on the accuracy of the projection holds,
 
     \begin{lem*}[A.1] \label{lemA1}
@@ -126,7 +164,7 @@
     \end{equation}
     Given that both $P_wa \in B_w(D)$ and $P_w\cal G^\dag(P_wa) \leq B_w(D)$, a consequence of the above lemma is the existence of an operator $\cal G^* " B_w(D) \to B_w(D):a \mapsto P_w(\cal G^\dag(a))$ that can approximate $\cal G^\dag$ arbitrarily well. Hence $\left\|\cal G^\dag - \cal G^*\right\|_{op} \leq \epsilon$, where the operator are considered as mapping from and to $B_w(D) \cap H^r(D)$ equipped with the $H^r(D)$-norm.
 
-    \subsection{Continuous-Discrete Equivalence for Operator \texorpdfstring{$\cal G^*$}{}}
+    \subsection{Continuous-Discrete Equivalence for Operator \texorpdfstring{$\cal G^*$}{}} \label{appendix:A.2}
     For every $w > 0$, we denote by $B_w(\bb R^2)$ the space of multivariate bandlimited functions
     $$B_w(\bb R^2) = \{f \in L^2(\bb R^2) : \text{supp}\hat{f} \subset eq [-w,w]^2\},$$
     where $\hat{f}$ denotes the Fourier transform on $L^1(\bb R)$ 
@@ -177,6 +215,12 @@
         \end{tikzcd}
     \end{figure}
     commutes. In other words, once we fix the discrete representation associcated to the input and output functions, there exists a unique way to defined a discretization $\mathfrak{g}_{\Psi_w,\Psi_{w'}}$ that is consistent with the continuous operator $\cal G^*$ and this is given by \ref{eq:defg}.
+
+    \noindent In practice, we may have access to different discrete representations of the input and output functions, e.g. point samples evaluated on different grids, which in the theory amounts to change of reference systems in the functions spaces. For instance, sampling a function $f\in B_w$ on a finer gris $\left\{(\frac{m}{2\overline{w}},\frac{n}{2\overline{w}})\right\}_{m,n \in \bb Z},\overline{w} > w,$ amounts to representing the function $f$ with respect to the system $\Psi_{\overline{w}} = \{\sinc(2\overline{w}x_1 - m) \cdot \sinc(2\overline{w}x_2 - n)\}_{m,n \in \bb Z},$ which constitutes an orthonormal basis for $B_{\overline{w}} \supset B_w$. Then, one can define the associated CDE discretization $\mathfrak{g}_{\Psi_{\overline{w}},\Psi_{\overline{w}'}}$ as in \ref{eq:defg}, and by equation \ref{eq:opaliaserror}, one readily obtains the change of basis formula
+    \begin{equation}
+        \mathfrak{g}_{\Psi_{\overline{w}},\Psi_{\overline{w}'}} = T^*_{\Psi_{\overline{w}'}} \circ T_{\Psi_{w'}} \circ \mathfrak{g}_{\Psi_w,\Psi_{w'}} \circ T^*_{\Psi_w} \circ T_{\Psi_{\overline{w}}},
+    \end{equation}
+    Finally, all the above concepts generalize to every pair of frame sequences $(\Psi,\Psi)$ that span respectively the input and output function spaces, and we refer \cite{FB2023} for a complete exposition.
     \section{\bf An Introduction to Frame Theory} \label{appendix:B}
     \noindent Let $\cal H$ be a separable Hilbert space with inner product $\langle\cdot,\cdot\rangle$ and norm $\|\cdot\|$.
     \begin{defn}[Frame]
