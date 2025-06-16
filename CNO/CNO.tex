@@ -4,6 +4,7 @@
 \usepackage[numbers]{natbib}
 \setlength{\bibsep}{8pt}
 \usepackage{graphicx}
+\usepackage{tikz-cd}
 \usepackage{hyperref}
 \usepackage{lineno}
 \usepackage{amssymb}
@@ -21,7 +22,7 @@
 \fancyhf{} % Clear default headers/footers
 \setlength{\headheight}{10.0pt}
 % Even pages: Paper title
-\fancyhead[LE]{\footnotesize\textit{Nonlocality and Nonlinearity Implies Universality}}
+\fancyhead[LE]{\footnotesize\textit{Universality for CNOs in setting of ANOs}}
 
 % Odd pages: Author name
 \fancyhead[RO]{\footnotesize\textit{Devansh Tripathi}}
@@ -85,7 +86,7 @@
     for some $w > 0$ and with $\hat{f}$ denoting the Fourier transform of $f$. From 
 
     \appendix
-    \section{Detailed proofs} \label{appendix:A}
+    \section{\bf Detailed proofs} \label{appendix:A}
     \subsection[A.1]{Approximation of Operators mapping between Sobolev spaces by operators mapping between spaces of bandlimited functions}
     We prove that one can approximate any continuous operator $\cal G^\dag : \cal X \to \cal Y$ by an operator mapping between spaces of bandlimited functions to arbitrary accuracy. We obtain this result by dsicarding the high-frequency components, higher than the frequency $w$, of both the input and the output of $\cal G^\dag$ by a Fourier projection $P_w$. For orthogonal Fourier projections and also trigonometric polynomial interpolation, the following result on the accuracy of the projection holds,
 
@@ -138,7 +139,112 @@
     \begin{equation}
         f(x_1,x_2) = T_{\Psi_w}T^*_{\Psi_w}f(x_1,x_2) = \sum\limits_{m,n \in \bb Z} f\left(\frac{m}{2w},\frac{n}{2w}\right) \sinc(2wx_1 - m) \cdot \sinc(2wx_2 - n),
     \end{equation}
-    and we say that there is a {\it continuous-discrete equivalence (CDE)} between $f$ and its samples $\left\{f\left(\frac{m}{2w},\frac{n}{2w}\right)\right\}$. In general, every bandlimited function $f \in B_w(\bb R^2)$ cam be uniquely and stably recovered from its sample values $\{f(mT,nT)\}_{m,n\in\bb Z}$ if the {\it sampling rate} or reciprocal of grid size, $1/T$ is greater or equal than the {\it Nyquist rate} $2w$.
+    and we say that there is a {\it continuous-discrete equivalence (CDE)} between $f$ and its samples $\left\{f\left(\frac{m}{2w},\frac{n}{2w}\right)\right\}$. In general, every bandlimited function $f \in B_w(\bb R^2)$ cam be uniquely and stably recovered from its sample values $\{f(mT,nT)\}_{m,n\in\bb Z}$ if the {\it sampling rate} or reciprocal of grid size, $1/T$ is greater or equal than the {\it Nyquist rate} $2w$. This simply follows from the fact that $B_w(\bb R^2) \subset B_{w'}(\bb R^2)$ for every $w' > w$. On the contrary, reconstructing $f \in B_w$ at a sampling rate below the Nyquist rate, i.e. $1/T < 2w$, results in a non-zero value for the {\it aliasing error function:}
+    $$ \epsilon(f) = f - T_{{\Psi}_{\frac{1}{2T}}} T^*_{{\Psi}_{\frac{1}{2T}}}f,$$
+    and the associated {\it aliasing error} $\|\epsilon\|_2$  (see defintion below).
+    \begin{defn}[Aliasing for bandlimited functions]
+        The aliasing error function $\varepsilon(f)$ and the corresponding aliasing error of $f \in L^2(\bb R)$ for sampling at the rate $2\Omega$ are given by
+        $$ \varepsilon(f) = f - \cal P_{B_\Omega}f, \qquad\qquad \|\varepsilon(f)\|_2 = \|f - \cal P_{B_\Omega}f\|_2.$$
+        where $\cal P_{B_\Omega} : L^2(\bb R) \to B_\Omega$ is the {\it orthogonal projection operator} onto $B_\Omega$ given by $P_{B_\Omega}f = \sum_{n\in \bb Z}\langle f,\phi_n\rangle\phi_n$. If the aliasing error $\varepsilon(f)$ is zero, i.e. if $f \in B_\Omega$, we say that there is a continuous-discrete equivalence (CDE) between $f$ and its samples $\{f(n/2\Omega)\}_{n \in \bb Z}$.
+    \end{defn}
+    \noindent Let $\cal G^*$ be a (possibly) non-linear operator between band-limited spaces, i.e. $\cal G^* :B_w(\bb R^2) \to B_{w'}(\bb R^2)$, for some $w,w' > 0$. As given in \ref{appendix:C}, the concepts of continuous-discrete equivalence (CDE) and aliasing error can be adapted to the operator $\cal G^*$. The continuous operator $\cal G^*$ is uniquely determined by a map $\mathfrak{g}_{\Psi_w, \Psi_{w'}}:\ell^2(\bb Z^2) \to \ell^2(\bb Z^2)$ if the aliasing error operator.
+    \begin{equation}\label{eq:opaliaserror}
+        \varepsilon = \cal G^* - T_{\Psi_{w'}} \circ \mathfrak{g}_{\Psi_w, \Psi_{w'}} \circ T^*_{\Psi_w}
+    \end{equation}
+    is identically zero, and we say that $\cal G^*$ and $\mathfrak{g}_{\Psi_w, \Psi_{w'}}$, satisfy a continuous-discrete equivalence (Definition \ref{def:opalias}). Equivalently, the diagram 
+    \begin{figure}[!ht]
+        \begin{tikzcd}
+            B_w \arrow[r, "\cal G^*"] \arrow[d, blue, "T^*_{\Psi_w}"] & B_{w'}, \\
+            \ell^2(\bb Z^2) \arrow[r, blue, "\mathfrak{g}_{\Psi_w, \Psi_{w'}}"] & \ell^2(\bb Z^2) \arrow[u, blue, "T_{\Psi_{w'}}"]
+        \end{tikzcd}
+    \end{figure}
+    commutes, i.e. the black and the blue directed paths in the diagram lead to the same result. In the latter case, since $T^*_{\Psi_w} \circ T_{\Psi_w}$ is identity operator from $\ell^2(\bb Z^2)$ onto itself ($\because \Psi_w$ is taken to be orthonormal basis set, otherwise it is Gram matrix $G_{mn} := \langle \Psi_n,\Psi_m\rangle$), equation \ref{eq:opaliaserror} forces the discretization $\mathfrak{g}_{\Psi_w,\Psi_{w'}},$ to be defined as
+    \begin{equation}\label{eq:defg}
+        \mathfrak{g}_{\Psi_w,\Psi_{w'}} := T^*_{\Psi_{w'}} \circ \cal G^* \circ T_{\Psi_w}.
+    \end{equation}
+    The above defintion is motivated from the fact that $\Psi_w$ is orthonormal set and the equation \ref{eq:opaliaserror} when $\varepsilon = 0$.
+    \begin{rem}\label{rem:invert}
+        Note that in general $T_{\Psi_w}$ is not invertible. When the frame sequence is orthonormal, it is invertible and its inverse is same as its adjoint.
+    \end{rem}
+    \begin{rem}
+        While isolating $\mathfrak{g}_{\Psi_w,\Psi_{w'}}$ on LHS in equation \ref{eq:opaliaserror}, the term $T^{-1}_{\Psi_{w'}}$ will appear and it has been replaced to $T^*_{\Psi_{w'}}$ in equation \ref{eq:defg} because of remark \ref{rem:invert}. Why? That is how we define it. 
+    \end{rem}
+    \noindent The definition \ref{eq:defg} is equivalent to say that the diagram,
+    \begin{figure}[!ht]
+        \begin{tikzcd}
+            B_w \arrow[r, blue, "\cal G^*"] & B_{w'} \arrow[d, blue, "T^*_{\Psi_{w'}}"], \\
+            \ell^2(\bb Z^2) \arrow[r, "\mathfrak{g}_{\Psi_w, \Psi_{w'}}"] \arrow[u, blue, "T_{\Psi_w}"] & \ell^2(\bb Z^2) 
+        \end{tikzcd}
+    \end{figure}
+    commutes. In other words, once we fix the discrete representation associcated to the input and output functions, there exists a unique way to defined a discretization $\mathfrak{g}_{\Psi_w,\Psi_{w'}}$ that is consistent with the continuous operator $\cal G^*$ and this is given by \ref{eq:defg}.
+    \section{\bf An Introduction to Frame Theory} \label{appendix:B}
+    \noindent Let $\cal H$ be a separable Hilbert space with inner product $\langle\cdot,\cdot\rangle$ and norm $\|\cdot\|$.
+    \begin{defn}[Frame]
+        A countable sequence of vectors $\{f_i\}_{i\in I}$ in $\cal H$ is a {\it frame} for $\cal H$ if there exists constants $A,B > 0$ such that for all $f \in \cal H$
+        $$ A\|f\|^2 \leq \sum_{i\in I} |\langle f,f_i\rangle|^2 \leq B\|f\|^2.$$
+        We say that $\{f_i\}_{i\in I}$ is a {\it tight frame} if $A = B$ and, in particular, a {\it Parseval fram} if $A = B = 1$. 
+    \end{defn}
+    \begin{rem}
+        The condition in the above definition ensure that $f$ can be stably reconstructed from its inner products with the frame elements. Stable reconstruction here implies the well-posedness and bounded in both direction (no explosion or vanishing of norm).
+    \end{rem}
+    \begin{rem}
+        A frame is complete in $\cal H$, stable spanning set of $\cal H$.
+    \end{rem}
+    Clearly by the Parseval identity, an orthonormal basis for $\cal H$ is a Parseval frame ($\because \|f\|^2 = \sum_{n=1}^{\infty}|\langle x,x_n\rangle|^2$, by Parseval's identity for a separable Hilbert space, the so called generalization of the Pythagorean theorem). The lower inequality implies that 
+    $$ \langle f,f_i\rangle = 0, \forall i \in I \implies f = 0,$$
+    which is equivalent to 
+    $$ \overline{\text{span}}\{f_i : i \in I\} = \cal H.$$
+    On the other hand the upper inequality implies that the operator
+    $$ T:l^2(I) \to \cal H, \qquad T(\{c_i\}_{i\in I}) = \sum_{i\in I} c_if_i,$$
+    is bounded with $\|T\| \leq \sqrt{B}$ (\cite{Christensen2008-gk} Theorem 3.1.3), and we call $T$ the {\it synthesis operator}. Its adjoint is given by 
+    $$ T^* : \cal H \to \cal H, \qquad Sf = TT^*f = \sum_{i\in I} \langle f,f_i\rangle f_i,$$
+    which is bounded, invertible, self-adjoint and positive operator (\cite{Christensen2008-gk}, Lemma 5.1.6). We note that the frame operator is invertible since it is bounded, being a composition of two bounded operator, and the frame property implies that $\|\text{Id} - B^{-1}S\| < 1$, where Id denotes the identity operator. Furthermore, the pseudo-inverse of the synthesis operator is given by
+    $$ T^\dag : \cal H \to l^2(I), \qquad T^\dag f = (\langle f, S^{-1}f_i\rangle)_{i\in I},$$
+    (\cite{Christensen2008-gk}, Theorem 5.3.7) and $\|T^\dag\| \leq 1/\sqrt{A}$(\cite{Christensen2008-gk}, Proposition 5.3.8). The composition $TT^\dag$ gives the identity operator on $\cal H$, and consequently every element in $\cal H$ can be reconstructed via the reconstruction formula
+    \begin{equation}\label{formula}
+        f = TT^\dag f= \sum_{i\in f}\langle f,S^{-1}f_i\rangle f_i = \sum_{i\in I}\langle f,f_i\rangle S^{-1}f_i,
+    \end{equation}
+    where the series converge unconditionally. Formula \ref{formula} is known as the {\it frame decomposition thoerem} (\cite{Christensen2008-gk}, Theorem 5.1.7). In particular, if $\{f_i\}_{i\in I}$ is a tight frame, then $S = A\text{Id}$ and formula \ref{formula} simply reads
+    $$ f = \frac{1}{A}\sum_{i\in I}\langle f,f_i\rangle f_i.$$
+    On the other hand, the composition $T\dag T$ gives the orthogonal projection of $l^2(I)$ onto Ran($T^\dag$)(\cite{Christensen2008-gk}, Lemma 2.5.2).
+
+    \noindent In what follows, we consider sequences which are not complete in $\cal H$, and consequently are not frames for $\cal H$, but they are frames for their closed linear span.
+    \begin{defn}[Frame sequence]
+        Let $\{v_i\}_{i\in I}$ be a countable sequence of vectors in $\cal H$. We say that $\{v_i\}_{i\in I}$ is a frame sequence {\it if it is a frame for $\overline{span}\{v_i:i\in I\}$.}
+    \end{defn}
+    \begin{rem}
+        A frame sequence may not span all of $\cal H$, but it is a frame for the subspace of $\cal H$ which it does span.
+    \end{rem}
+    \noindent A frame sequence $\{v_i\}_{i\in I}$ in $\cal H$ with synthesis operator $T : l^2(I) \to \overline{span}\{v_i : i\in I\}$ is a frame for $\cal H$ if and only if $T^*$ is injective, whilst in general $T^*$ is not surjective and consequently $T$ is not injective. We denote $\cal V = \overline{span}\{v_i : i\in I\}$. Then, the orthogonal projection of $\cal H$ onto $\cal V$ is given by
+    $$ \cal P_{\cal V}f = TT^\dag = \sum_{i\in I}\langle f,S^{-1}v_i\rangle v_i,$$
+    where $S : \cal V \to \cal V$ denotes the frame operator. Hence, reconstruction formula \ref{formula} holds if and only if $f\in \cal V$.
+
+    \section{\bf Alias-Free Framework for Operator Learning} \label{appendix:C}
+    \noindent In this section, we will extend this concept of aliasing of function to operators. Let $U$ be a operator mapping between infinite-dimensional function spaces and $u$ be a discrete representation mapping.
+    
+    \paragraph{\bf Setting}Let $U: \text{Dom }U \subseteq \cal H \to \cal K$ be an operator between two separable Hilbert spaces, and let $\Psi = \{\psi_i\}_{i\in I}$ and $\Psi = \{\phi_k\}_{k \in K}$ be frame sequences for $\cal H$ and $\cal K$, respectively, with synthesis operators $T_\Psi$ and $T_\Phi$. We denote their closed linear spans by $\cal M_\Psi := \overline{\text{span}}\{\psi_i : i \in I\}$ and $\cal M_\Phi := \overline{\text{span}}\{\phi_i : k \in K\}$. We note that by classical frame theory \cite{Christensen2008-gk}, the pseudo-inverses $T_\Psi^\dag$ and $T_\Phi^\dag$, initially defined on $\cal M^\Psi$ and $\cal M_\Psi$, respectively, can in fact be extended to the entire Hilbert spaces, i.e. $T_\Psi^\dag : \cal H \to l^2(I)$ and $T_\Phi^\dag : \cal K \to l^2(K)$ and this extension is given explicitly via the dual frame analysis operator.
+    \subsection{\bf Operator Aliasing and Representation Equivalence}
+    Once the discretization is chosen -- which is equivalent to choosing the frame sequences for input and output spaces $(\Psi,\Phi)$ -- connecting the continuous operator $U$ with its discrete counterpart $u$ is the notion of operator aliasing. Given any mapping $u : l^2(I) \to l^2(K)$, we can build the operator $T_\Phi \circ u \circ T_\Psi^\dag : \cal H \to \cal K$, whose definition clearly on the choices of the frame sequences that we make on the continuous level. In other words, any mapping $u$ can be interpreted as a discrete representation of an underlying continuous operator, which in general, may differ from the operator $U$, that is of interest here. Hence, in analogy to definition of aliasing for functions in Hilbert space, we can define the aliasing error of $U$ relative to the discrete representation $u$ as,
+    \begin{defn}[Operator aliasing]\label{def:opalias}
+        The aliasing error operator $\varepsilon(U,u,\Psi,\Phi):\text{Dom }U \subseteq \cal H \to \cal K$ is given by
+        $$ \varepsilon(U,u,\Psi,\Phi) = U - T_\Phi \circ u \circ T_\Psi^\dag,$$
+        and the corresponding scalar error is $\|\varepsilon(U, u, \Psi, \Phi)\|$, with $\|\cdot\|$ denoting the operator norm.
+    \end{defn}
+    \noindent An aliasing error of zero implies that the operator $U$ can be perfectly represented by first discretizing the function with $T_\Psi^\dag$, applying $u$, and then reconstructing with $T_\Phi$, or equivalently, that the diagram in Figure \ref{fig:1} commutes, i.e. black and blue directed paths in the diagram lead to the same result. If the aliasing error is zero, we say that $(U, u, \Psi, \Phi)$ satisfies a {\it continuous-discrete equivalence (CDE)}, implying that accessing the discrete representation $u$ is exactly same as accessing the underlying continuous operator $U$.
+    \begin{figure}[!ht] \label{fig:1}
+        \begin{tikzcd}
+        \cal H \arrow[r, "U"] \arrow[d, blue, "T_\Psi^\dag"] & \cal K \\
+        \ell^2(I) \arrow[r, blue, "u"] & \ell^2(K) \arrow[u, blue, "T_\Phi"]
+        \end{tikzcd}
+        \caption{An alias-free operator's diagram commutes.}
+    \end{figure}
+    In practice, the discrete representation $u$ of the operator $U$ depends on the choice of the frame sequences. This means that -- as mentioned at the beginning of the section -- there is one map for every input/output frame sequence $\Phi,\Psi$. The consistency between operations $u,u'$ with respect to different frame sequences can be evaluated using the following error.
+    \begin{defn}[Representation equivalence error] Suppose that $u,u'$ are discrete maps with associated frame sequences $\Psi,\Phi$ and $\Psi',\Phi'$, respectively. Then, the representation equivalence error is given by the function $\tau(u,u') : \ell^2(I) \to \ell^2(K),$ defined as:
+    $$ \tau(u,u') = u - T^\dag_\Phi \circ T_{\Phi'} \circ u' \circ T_{\Psi'}^\dag \circ T_\Psi$$
+    and the corresponding scalar error is $\|\tau(u,u')\|$.
+    \end{defn}
+    \noindent Intuitively, this amount to computing each mapping on their given discretization, and comparing them by expressing $u'$ in the frames associated to $u$
+
 \bibliographystyle{plainnat}
 \bibliography{ref_cno}
 \end{document}
