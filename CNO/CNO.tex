@@ -5,6 +5,9 @@
 \setlength{\bibsep}{8pt}
 \usepackage{graphicx}
 \usepackage{tikz-cd}
+\usepackage{subcaption}
+\captionsetup[subfigure]{labelformat=parens,labelfont=normalfont}
+\renewcommand{\thesubfigure}{\alph{subfigure}}
 \usepackage{hyperref}
 \usepackage{lineno}
 \usepackage{amssymb}
@@ -107,7 +110,52 @@
     $$ K_w = \sum_{i,j=1}^{k} k_{ij} \cdot \delta_{z_{ij}}$$
     defined on a $s \times s$ uniform grid on $D$ with grid size $\geq 1/2w$, in-order to satisfy the requirements of the Whittaker-Shannon Kotelnikov sampling theorem \cite{MU2000}, and $z_{ij}$ being the resulting grid points, $k \in\bb N$ being kernel size and $\delta_x$ denoting the Dirac measure at point $x\in D$. The convolution operator for a {\it single-channel} $K_w : B_w(D) \to B_w(D)$ is defined by 
     $$ \cal K_wf(x) = (K_w \star f)(x) = \int_D K_w(x-y)f(y) dy = \sum_{i,j=1}^{k} k_{i,j} f(x-z_{ij}), \qquad \forall x\in D,$$
-    where the last identity arises from the fact that $f \in B_w$.
+    where the last identity arises from the fact that $f \in B_w$. Thus, our convolution operator is directly parameterized in physical space, in contrast to the Fourier space parameterization of convolution in the FNO architecture of \cite{ZL2021}. Hence, our parameterization is of a {\it local} nature.
+
+    \paragraph{\bf Upsampling and Downsampling Operator} For some $\overline{w} > w$, we can {\it upsample} a function $f \in B_w$ to the {\it higher band} $B_{\overline{w}}$ by simple setting,
+    $$ \cal U_{w,\overline{w}}: B_w(D) \to B_{\overline{w}}(D), \qquad \cal U_{w,\overline{w}} f(x) = f(x), \qquad \forall x\in D.$$
+    On the other hand, for some $\underline{w} < w$, we can {\it downsample} a function $ f\in B_w$ to the {\it lower band} $B_{\underline{w}}$ by setting $\cal D_{w,\underline{w}} : B_w(D) \to B_{\underline{w}}(D),$ defined by 
+    $$\cal D_{w,\underline{w}}f(x) = \left(\frac{\underline{w}}{w}\right)^2 (h_{\underline{w}} \star f)(x) = \left(\frac{\underline{w}}{w}\right)^2 \int_D h_{\underline{w}}(x-y) f(y) dy, \qquad \forall x\in D,$$
+    where $\star$ is the convolution operation on functions defined above and $h_{\underline{w}}$ is the so-called {\it interpolation sinc filter}:
+    \begin{equation}
+        h_w(x_0,x_1) = \sinc(2wx_0) \cdot \sinc(2wx_1), \qquad (x_0,x_1) \in \bb R^2.
+    \end{equation}
+
+    \paragraph{\bf Activation Layer} Naturally, one can apply the activation function pointwise to any function. However, it is well-known that such an application will no longer respect the band-limits of the underlying function space and generate {\it aliasing error} \cite{FB2023}. In particular, nonlinear activations can generate features at arbitrarily high frequencies. Our aim is to respect the underlying CDE, we will modulate the application of the activation function so that the resulting outputs falls within desired band limits.
+
+    \noindent First, we will upsample the input function $f \in B_w$ to a higher bandlimit $\overline{w} > w$, then apply the activation and finally downsample the result back to the original bandlimit $w$. Implicitly assuming that $\overline{w}$ is large enough such that $\sigma(B_w) \subset B_{\overline{w}}$, we define the activation layer as,
+    \begin{equation}
+        \Sigma_{w,\overline{w}} : B_w(D) \to B_w(D), \qquad \Sigma_{w,\overline{w}} f(x) = \cal D_{\overline{w},w}(\sigma \circ \cal U_{w,\tilde{w}} f)(x), \qquad \forall x\in D.
+    \end{equation}
+
+    \paragraph{\bf Instantiation through an Operator U-Net architecture} The above blocks are assembled together in the form of an Operator U-Net architecture that has bandlimited functions as input and outputs. We also need other ingredients such as {\it skip connections} through {\it ResNet} blocks of the form, $\cal R_{w,\overline{w}} : B_w(D,\bb R^d) \to B_w(D,\bb R^d),$ such that
+    \begin{equation}
+        \cal R_{w,\overline{w}}(v) = v + \cal K_w \circ \Sigma_{w,\overline{w}} \circ \cal K_w(v), \qquad \forall v \in B_w(D,\bb R^d).        
+    \end{equation}
+    we also need the {\it Invariant blocks} of the form , $\cal I_{w,\overline{w}}:B_w(D,\bb R^d) \to B_w(D,\bb R^d)$ such that 
+    \begin{equation}
+        \cal I_{w,\overline{w}}(v) = \Sigma_{w,\overline{w}} \circ \cal K_w(v), \qquad \forall v \in B_w(D,\bb R^d).
+    \end{equation}
+
+    \paragraph{\bf Continuous-Discrete Equivalence for CNO} We have defined CNO as an operator that maps bandlimited functions to bandlimited functions. In practice, CNO has to be implemented in a discrete manner with {\it discretized versions} of each of the above-defined elementary operations. We prove the following proposition:
+    \begin{prop}
+        Convolutional Neural Operator $\cal G: B_w(D,\bb R^{d_{\cal X}}) \to B_w(D,\bb R^{d_{\cal Y}})$ is a Representation equivalent neural operator or ReNO, in the sense of Defintion \ref{def:ReNO}.      
+    \end{prop}
+    \begin{proof}
+        TODO
+    \end{proof}
+
+    \section{Universal Approximation by CNOs}
+    \noindent We consider the following abstract PDE in the domain $D = \bb T^2$,
+    \begin{equation}\label{eq:pde}
+        \cal L(u) = 0, \qquad \cal B(u) = 0,
+    \end{equation}
+    with $\cal L$ being the differential operator and $\cal B$ a boundary operator. We assume that the differential operator $\cal L$ only depends on the coordinate $x$ through a {\it coefficient} function $a \in H^r(D).$ The corresponding {\it solution} operator is denoted by $\cal G^\dag : \cal X^* \subset H^r(D) \to H^r(D) : a \mapsto u,$ with $u$ beign the solution of the PDE (\ref{eq:pde}). We assume that $\cal G^\dag$ is continuous. Moreover, we also assume the following modulus of continuity,
+    \begin{equation}
+        \left\|\cal G^\dag(a) - \cal G^\dag(a')\right\|_{L^p(\bb T^2)} \leq \omega\left(\|a - a'\|_{H^\sigma(\bb T^2)}\right),
+    \end{equation}
+    for some $p \in \{2,\infty\}$ and $0 \leq \sigma \leq r-1$, and where $\omega : [0\infty) \to [0,\infty)$ is a monotonously increasing function with $\lim_{y \to 0} \omega (y) = 0$.
+
 
 
 
@@ -189,14 +237,17 @@
     \begin{equation}\label{eq:opaliaserror}
         \varepsilon = \cal G^* - T_{\Psi_{w'}} \circ \mathfrak{g}_{\Psi_w, \Psi_{w'}} \circ T^*_{\Psi_w}
     \end{equation}
-    is identically zero, and we say that $\cal G^*$ and $\mathfrak{g}_{\Psi_w, \Psi_{w'}}$, satisfy a continuous-discrete equivalence (Definition \ref{def:opalias}). Equivalently, the diagram 
+    is identically zero, and we say that $\cal G^*$ and $\mathfrak{g}_{\Psi_w, \Psi_{w'}}$, satisfy a continuous-discrete equivalence (Definition \ref{def:opalias}). Equivalently, the diagram \\
     \begin{figure}[!ht]
+        \centering
         \begin{tikzcd}
-            B_w \arrow[r, "\cal G^*"] \arrow[d, blue, "T^*_{\Psi_w}"] & B_{w'}, \\
-            \ell^2(\bb Z^2) \arrow[r, blue, "\mathfrak{g}_{\Psi_w, \Psi_{w'}}"] & \ell^2(\bb Z^2) \arrow[u, blue, "T_{\Psi_{w'}}"]
+                B_w \arrow[r, "\cal G^*"] \arrow[d, blue, "T^*_{\Psi_w}"] & B_{w'}, \\
+                \ell^2(\bb Z^2) \arrow[r, blue, "\mathfrak{g}_{\Psi_w, \Psi_{w'}}"] & \ell^2(\bb Z^2) \arrow[u, blue, "T_{\Psi_{w'}}"]
         \end{tikzcd}
+        \caption{}
     \end{figure}
-    commutes, i.e. the black and the blue directed paths in the diagram lead to the same result. In the latter case, since $T^*_{\Psi_w} \circ T_{\Psi_w}$ is identity operator from $\ell^2(\bb Z^2)$ onto itself ($\because \Psi_w$ is taken to be orthonormal basis set, otherwise it is Gram matrix $G_{mn} := \langle \Psi_n,\Psi_m\rangle$), equation \ref{eq:opaliaserror} forces the discretization $\mathfrak{g}_{\Psi_w,\Psi_{w'}},$ to be defined as
+
+    \noindent commutes, i.e. the black and the blue directed paths in the diagram lead to the same result. In the latter case, since $T^*_{\Psi_w} \circ T_{\Psi_w}$ is identity operator from $\ell^2(\bb Z^2)$ onto itself ($\because \Psi_w$ is taken to be orthonormal basis set, otherwise it is Gram matrix $G_{mn} := \langle \Psi_n,\Psi_m\rangle$), equation \ref{eq:opaliaserror} forces the discretization $\mathfrak{g}_{\Psi_w,\Psi_{w'}},$ to be defined as
     \begin{equation}\label{eq:defg}
         \mathfrak{g}_{\Psi_w,\Psi_{w'}} := T^*_{\Psi_{w'}} \circ \cal G^* \circ T_{\Psi_w}.
     \end{equation}
@@ -213,6 +264,7 @@
             B_w \arrow[r, blue, "\cal G^*"] & B_{w'} \arrow[d, blue, "T^*_{\Psi_{w'}}"], \\
             \ell^2(\bb Z^2) \arrow[r, "\mathfrak{g}_{\Psi_w, \Psi_{w'}}"] \arrow[u, blue, "T_{\Psi_w}"] & \ell^2(\bb Z^2) 
         \end{tikzcd}
+        \caption{}
     \end{figure}
     commutes. In other words, once we fix the discrete representation associcated to the input and output functions, there exists a unique way to defined a discretization $\mathfrak{g}_{\Psi_w,\Psi_{w'}}$ that is consistent with the continuous operator $\cal G^*$ and this is given by \ref{eq:defg}.
 
@@ -250,7 +302,7 @@
     \end{equation}
     where the series converge unconditionally. Formula \ref{formula} is known as the {\it frame decomposition thoerem} (\cite{Christensen2008-gk}, Theorem 5.1.7). In particular, if $\{f_i\}_{i\in I}$ is a tight frame, then $S = A\text{Id}$ and formula \ref{formula} simply reads
     $$ f = \frac{1}{A}\sum_{i\in I}\langle f,f_i\rangle f_i.$$
-    On the other hand, the composition $T\dag T$ gives the orthogonal projection of $l^2(I)$ onto Ran($T^\dag$)(\cite{Christensen2008-gk}, Lemma 2.5.2).
+    On the other hand, the composition $T^\dag T$ gives the orthogonal projection of $l^2(I)$ onto Ran($T^\dag$)(\cite{Christensen2008-gk}, Lemma 2.5.2).
 
     \noindent In what follows, we consider sequences which are not complete in $\cal H$, and consequently are not frames for $\cal H$, but they are frames for their closed linear span.
     \begin{defn}[Frame sequence]
@@ -262,6 +314,11 @@
     \noindent A frame sequence $\{v_i\}_{i\in I}$ in $\cal H$ with synthesis operator $T : l^2(I) \to \overline{span}\{v_i : i\in I\}$ is a frame for $\cal H$ if and only if $T^*$ is injective, whilst in general $T^*$ is not surjective and consequently $T$ is not injective. We denote $\cal V = \overline{span}\{v_i : i\in I\}$. Then, the orthogonal projection of $\cal H$ onto $\cal V$ is given by
     $$ \cal P_{\cal V}f = TT^\dag = \sum_{i\in I}\langle f,S^{-1}v_i\rangle v_i,$$
     where $S : \cal V \to \cal V$ denotes the frame operator. Hence, reconstruction formula \ref{formula} holds if and only if $f\in \cal V$.
+    \subsection{\texorpdfstring{Condition $u:\text{Ran }T^\dag_\Psi \to \text{Ran }T^\dag_\Phi$}{}} \label{appendix:B.1}
+
+    Once the discretization is choosen in the input and output spaces, which amounts to choosing a frame pair $(\Psi \subseteq \cal H,\Phi \subseteq \cal K)$, we want to define a mapping $u : \ell^2(I) \to \ell^2(K)$ which handles such discrete representations. By frame decomposition theorem \ref{formula}, every function in $\cal H$ is uniquely determined by a sequence in $\text{Ran } T^\dag_\Phi$, and analogously every function in $\cal K$ is uniquely determined by a sequence in $\text{Ran }T^\dag_\Phi$. Hence, it is sufficient to define a mapping from $\text{Ran }T^\dag_\Psi$ into $\text{Ran }T^\dag_\Phi$. We ensure that when two different discretization both yield zero aliasing, the change of frame formula holds, and thus the representation equivalence error is zero.
+
+
 
     \section{\bf Alias-Free Framework for Operator Learning} \label{appendix:C}
     \noindent In this section, we will extend this concept of aliasing of function to operators. Let $U$ be a operator mapping between infinite-dimensional function spaces and $u$ be a discrete representation mapping.
@@ -274,13 +331,36 @@
         $$ \varepsilon(U,u,\Psi,\Phi) = U - T_\Phi \circ u \circ T_\Psi^\dag,$$
         and the corresponding scalar error is $\|\varepsilon(U, u, \Psi, \Phi)\|$, with $\|\cdot\|$ denoting the operator norm.
     \end{defn}
-    \noindent An aliasing error of zero implies that the operator $U$ can be perfectly represented by first discretizing the function with $T_\Psi^\dag$, applying $u$, and then reconstructing with $T_\Phi$, or equivalently, that the diagram in Figure \ref{fig:1} commutes, i.e. black and blue directed paths in the diagram lead to the same result. If the aliasing error is zero, we say that $(U, u, \Psi, \Phi)$ satisfies a {\it continuous-discrete equivalence (CDE)}, implying that accessing the discrete representation $u$ is exactly same as accessing the underlying continuous operator $U$.
-    \begin{figure}[!ht] \label{fig:1}
-        \begin{tikzcd}
-        \cal H \arrow[r, "U"] \arrow[d, blue, "T_\Psi^\dag"] & \cal K \\
-        \ell^2(I) \arrow[r, blue, "u"] & \ell^2(K) \arrow[u, blue, "T_\Phi"]
-        \end{tikzcd}
-        \caption{An alias-free operator's diagram commutes.}
+    \noindent An aliasing error of zero implies that the operator $U$ can be perfectly represented by first discretizing the function with $T_\Psi^\dag$, applying $u$, and then reconstructing with $T_\Phi$, or equivalently, that the diagram in Figure \ref{fig:3A} commutes, i.e. black and blue directed paths in the diagram lead to the same result. If the aliasing error is zero, we say that $(U, u, \Psi, \Phi)$ satisfies a {\it continuous-discrete equivalence (CDE)}, implying that accessing the discrete representation $u$ is exactly same as accessing the underlying continuous operator $U$.
+    \begin{figure}[!ht]
+        \centering
+        \begin{subfigure}{0.22\textwidth}
+            \centering
+            \begin{tikzcd}
+                \cal H \arrow[r, "U"] \arrow[d, blue, "T_\Psi^\dag"] & \cal K \\
+                \ell^2(I) \arrow[r, blue, "u"] & \ell^2(K) \arrow[u, blue, "T_\Phi"]
+            \end{tikzcd}
+            \caption{An alias-free operator's diagram.}
+            \label{fig:3A}
+        \end{subfigure} \hfill
+        \begin{subfigure}{0.28\textwidth}
+            \begin{tikzcd}
+                \cal H \arrow[r, blue, "U"] & \cal K \arrow[d, blue, "T_\Phi^\dag"]\\
+                \ell^2(I) \arrow[u, blue, "T_\Psi"] \arrow[r, "u"] & \ell^2(K) 
+            \end{tikzcd}
+            \caption{ReNO: alias-free $u$ can be constructed by discr the operator $U$ for different discretization given by $\Psi,\Phi$.}
+            \label{fig:3B}
+        \end{subfigure}\hfill
+        \begin{subfigure}{0.39\textwidth}
+            \begin{tikzcd}
+                & \ell^2(I) \arrow[r, blue, "{u(\Psi,\Phi)}"] & \ell^2(K) \arrow[rd, "\textcolor{blue}{T_\Phi}", blue] & \\
+                \mathcal{H} \arrow[ru, blue, "T_\Psi^\dagger"] \arrow[rrr, "U"] & & & \mathcal{K} \arrow[ld, "T_{\Phi'}^\dagger", blue]  \\
+                & \ell^2(I') \arrow[r, "{u(\Psi',\Phi')}"] \arrow[lu, "\textcolor{blue}{T_{\Psi'}}", blue] & \ell^2(K') &
+            \end{tikzcd}
+            \caption{ReNO: discrete representations $u,u'$ for different discretizations are equivalent}
+            \label{fig:3C}
+        \end{subfigure}
+        \caption{Alias-free framework}
     \end{figure}
     In practice, the discrete representation $u$ of the operator $U$ depends on the choice of the frame sequences. This means that -- as mentioned at the beginning of the section -- there is one map for every input/output frame sequence $\Phi,\Psi$. The consistency between operations $u,u'$ with respect to different frame sequences can be evaluated using the following error.
     \begin{defn}[Representation equivalence error] Suppose that $u,u'$ are discrete maps with associated frame sequences $\Psi,\Phi$ and $\Psi',\Phi'$, respectively. Then, the representation equivalence error is given by the function $\tau(u,u') : \ell^2(I) \to \ell^2(K),$ defined as:
@@ -288,6 +368,54 @@
     and the corresponding scalar error is $\|\tau(u,u')\|$.
     \end{defn}
     \noindent Intuitively, this amount to computing each mapping on their given discretization, and comparing them by expressing $u'$ in the frames associated to $u$
+    \begin{rem}\label{change_frame}
+        When there is no aliasing then the representation equivalence error is $0$ and the change of frame formula holds (equate $\tau(u,u')$ to $0$ to get the change of frame formula.)
+    \end{rem}
+
+    \subsection{Representation equivalent Neural Operator (ReNO)}
+    We now introduce the concept of R{\it Representation equivalent Neural Operator (ReNO)}. To this end, for any pair $(\Psi,\Phi)$ of frame sequences for $\cal H$ and $\cal K$, we consider a mapping at the discrete level $u(\Psi,\Phi) : \text{Ran}T^\dag_\Psi \to \text{Ran}T^\dag_\Phi,$ which handles the discrete representations of the functions. This map is discretization dependent and changes with the choices of frame sequences. When this is clear from the context, we will refer to $u(\Psi,\Phi)$ simply as $u$. See \ref{appendix:B.1} for the explanation of why $\text{Ran }T^\dag_\Psi$ or $\text{Ran }T^\dag_\Phi$ is choosen as domain and codomain respectively.
+
+    \begin{defn}[Representation equivalent Neural Operators (ReNO)] \label{def:ReNO}
+        We say that $(U,u)$ is a ReNO if for every pair $(\Psi,\Phi)$ of frame sequences that satisfy $\text{Dom }U \subseteq \cal M_\Psi$ and $\text{Ran }U \subseteq \cal M_\Phi$, there is no aliasing, i.e. the aliasing error operator is identical to zero:
+        \begin{equation}
+            \varepsilon (U,u,\Psi,\Phi) = 0
+        \end{equation} 
+        We will write this property in short as $\varepsilon(U,u) = 0$.
+    \end{defn}
+    \noindent In other words, the diagram in \ref{fig:3A} commutes for every every pair of $(\Psi,\Phi)$. In this case, the discrete representations $u(\Psi,\Phi)$ are all equivalent, meaning that they uniquely determine the same underlying operator $U$, whenever a continuous-discrete equivalence property holds at the level of the function spaces. The domain and range conditions in above definition simply imply that the frame can adequately represent input and output functions of $U$.
+
+    \begin{rem} \label{rem:frame_change}
+        If aliasing error $\varepsilon(U,u,\Psi,\Phi) = 0$ then the assumption that $u(\Psi,\Phi)$ maps $\text{Ran } T^\dag_\Psi \subseteq \ell^2(I)$ into $\text{Ran } T^\dag_\Phi \subseteq \ell^2(K)$ implies that 
+        \begin{equation}
+            u(\Psi,\Phi) = T^\dag_{\Phi} \circ U \circ T_\Psi.
+        \end{equation}
+        We observe that this definition of $u(\Psi,\Phi)$ is such that the diagram in Figure \ref{fig:3B} commutes. In other words, once we fix the discrete representation associated to the input and output functions, there exists a unique way to defined a discretization $u(\Psi,\Phi)$ that is consistent with the continuous operator $U$ and this is given by the above equation. 
+        \begin{proof}
+            If aliasing error $\varepsilon(U,u,\Psi,\Phi) = 0$, then
+            \begin{equation}
+                U = T_\Phi \circ u(\Psi,\Phi) \circ T^\dag_\Psi.
+            \end{equation}
+            By above equation, we obtain
+            $$ T^\dag_\Phi \circ U \circ T_\Psi = T^\dag_\Phi \circ T_\Phi \circ u(\Psi,\Phi) \circ T^\dag_\Psi \circ T_\Psi = u(\Psi,\Phi).$$
+            where the last equality follows from the fact that $T^\dag_\Psi \circ T_\Psi$ is the orthogonal projection onto $(\text{Ker}(T_\Psi))^{\perp} = \text{Ran}(T^\dag_\Psi)$ and, by assumption, $u(\Psi,\Phi)$ maps $\text{Ran }T^\dag_\Psi$ into $\text{Ran }T^\dag_\Phi$.
+        \end{proof}
+    \end{rem}
+
+    \noindent In partiuclar, Remark \ref{rem:frame_change} directly implies the formula to go from one discrete representation to another, as
+    \begin{equation} \label{eq:frame_change}
+        u(\Psi',\Phi') = T^\dag_{\Psi'} \circ T_\Phi \circ u(\Psi,\Phi) \circ T^\dag_\Psi \circ T_{\Psi'}
+    \end{equation}
+    whenever the pairs of frame sequences $(\Psi,\Phi)$ and $(\Psi',\Psi')$ satisfy the conditions in Definition \ref{def:ReNO}. In other words, the diagram in \ref{fig:3C} commutes.
+
+    \begin{prop}[Equivalence of ReNO discrete representations]
+        Let $(U,u)$ be a ReNO. For any two frame sequence pairs $(\Psi,\Phi)$ and $(\Psi',\Phi')$ satisfying conditions in Definition \ref{def:ReNO}, we have that 
+        $$ \tau(u,u') = 0,$$
+        where, by a slight abuse of notation, $u'$ denotes $u(\Psi',\Phi')$.
+    \end{prop}
+    \begin{proof}
+        Immediately implied by the formula \ref{eq:frame_change}. This proposition establishes the link between aliasing and representation equivalence i.e. if aliasing is $0$ then it will imply the representation equivalence error to be $0$.
+    \end{proof}
+
 
 \bibliographystyle{plainnat}
 \bibliography{ref_cno}
