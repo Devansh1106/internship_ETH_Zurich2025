@@ -3,6 +3,7 @@
 \usepackage[a4paper, margin=1.25in]{geometry} % Change 1in to desired size
 \usepackage[numbers]{natbib}
 \setlength{\bibsep}{8pt}
+\usepackage{dsfont}
 \usepackage{graphicx}
 \usepackage{tikz-cd}
 \usepackage{subcaption}
@@ -88,7 +89,7 @@
     \end{equation}
     for some $w > 0$ and with $\hat{f}$ denoting the Fourier transform of $f$. It is shown in appendix \ref{appendix:A.1} that for any $\varepsilon > 0$, there exists a $w$, large enough depending on $r$, and a continuous operator $\cal G^* : B_w(D) \to B_w(D)$, such that $\|\cal G^\dag - \cal G^*\| \leq \varepsilon,$ with $\|\cdot\|$ denoting the corresponding operator norm. Along with that \ref{appendix:A.2} shows that we can define discrete versions of $\cal G^*$ using the underlying $sinc$ basis for bandlimited functions and establish a continuously-discrete equivalence for it.
 
-    \paragraph{\bf Definition of CNO} Given above context, our goal will be approximate the operator $\cal G^*$ in a {\it structure-preserving manner} i.e. as the underlying operator maps between spaces of bandlimited functions, we will construct out operator approximation architecture to also map bandlimited functions to bandlimited functions, thus respecting the continuous-discrete equivalence.
+    \paragraph{\bf Definition of CNO} \label{def:CNO} Given above context, our goal will be approximate the operator $\cal G^*$ in a {\it structure-preserving manner} i.e. as the underlying operator maps between spaces of bandlimited functions, we will construct out operator approximation architecture to also map bandlimited functions to bandlimited functions, thus respecting the continuous-discrete equivalence.
 
     \noindent We denote the operator $\cal G : B_w(D) \to B_w(D)$ as a {\it convolutional neural operator} (CNO) which we define as a compositional mapping between functions as
     \begin{equation}\label{eq2.3}
@@ -106,9 +107,9 @@
     $$ Q : \left\{v_L \in B_w(D,\bb R^{d_L}) \right\} \to \left\{\overline{u} \in B_w(D,\bb R^{d_{\cal Y}}) \right\}.$$
     The projection operation is also performed by a convolution operator defined below.
 
-    \paragraph{\bf Convolution Operator} For simplicity, {\it single channel} version of the convolution operator $K_l$ is presented here. See appendix \ref{} for {\it multi-scale} version. Convolution operations are performed with discrete kernals
+    \paragraph{\bf Convolution Operator} For simplicity, {\it single channel} version of the convolution operator $K_l$ is presented here. See appendix \ref{appendix:A.3} for {\it multi-scale} version. Convolution operations are performed with discrete kernals
     $$ K_w = \sum_{i,j=1}^{k} k_{ij} \cdot \delta_{z_{ij}}$$
-    defined on a $s \times s$ uniform grid on $D$ with grid size $\geq 1/2w$, in-order to satisfy the requirements of the Whittaker-Shannon Kotelnikov sampling theorem \cite{MU2000}, and $z_{ij}$ being the resulting grid points, $k \in\bb N$ being kernel size and $\delta_x$ denoting the Dirac measure at point $x\in D$. The convolution operator for a {\it single-channel} $K_w : B_w(D) \to B_w(D)$ is defined by 
+    defined on a $s \times s$ uniform grid on $D$ with grid size $\geq 1/2w$, in-order to satisfy the requirements of the Whittaker-Shannon Kotelnikov sampling theorem \cite{MU2000}, and $z_{ij}$ being the resulting grid points, $k \in\bb N$ being kernel size and $\delta_x$ denoting the Dirac measure at point $x\in D$. The convolution operator for a {\it single-channel} $\cal K_w : B_w(D) \to B_w(D)$ is defined by 
     $$ \cal K_wf(x) = (K_w \star f)(x) = \int_D K_w(x-y)f(y) dy = \sum_{i,j=1}^{k} k_{i,j} f(x-z_{ij}), \qquad \forall x\in D,$$
     where the last identity arises from the fact that $f \in B_w$. Thus, our convolution operator is directly parameterized in physical space, in contrast to the Fourier space parameterization of convolution in the FNO architecture of \cite{ZL2021}. Hence, our parameterization is of a {\it local} nature.
 
@@ -117,13 +118,13 @@
     On the other hand, for some $\underline{w} < w$, we can {\it downsample} a function $ f\in B_w$ to the {\it lower band} $B_{\underline{w}}$ by setting $\cal D_{w,\underline{w}} : B_w(D) \to B_{\underline{w}}(D),$ defined by 
     $$\cal D_{w,\underline{w}}f(x) = \left(\frac{\underline{w}}{w}\right)^2 (h_{\underline{w}} \star f)(x) = \left(\frac{\underline{w}}{w}\right)^2 \int_D h_{\underline{w}}(x-y) f(y) dy, \qquad \forall x\in D,$$
     where $\star$ is the convolution operation on functions defined above and $h_{\underline{w}}$ is the so-called {\it interpolation sinc filter}:
-    \begin{equation}
+    \begin{equation}\label{eq2.5}
         h_w(x_0,x_1) = \sinc(2wx_0) \cdot \sinc(2wx_1), \qquad (x_0,x_1) \in \bb R^2.
     \end{equation}
 
     \paragraph{\bf Activation Layer} Naturally, one can apply the activation function pointwise to any function. However, it is well-known that such an application will no longer respect the band-limits of the underlying function space and generate {\it aliasing error} \cite{FB2023}. In particular, nonlinear activations can generate features at arbitrarily high frequencies. Our aim is to respect the underlying CDE, we will modulate the application of the activation function so that the resulting outputs falls within desired band limits.
 
-    \noindent First, we will upsample the input function $f \in B_w$ to a higher bandlimit $\overline{w} > w$, then apply the activation and finally downsample the result back to the original bandlimit $w$. Implicitly assuming that $\overline{w}$ is large enough such that $\sigma(B_w) \subset B_{\overline{w}}$, we define the activation layer as,
+    \noindent First, we will upsample the input function $f \in B_w$ to a higher bandlimit $\overline{w} > w$, then apply the activation function pointwise and finally downsample the result back to the original bandlimit $w$. Implicitly assuming that $\overline{w}$ is large enough such that $\sigma(B_w) \subset B_{\overline{w}}$, we define the activation layer as,
     \begin{equation}
         \Sigma_{w,\overline{w}} : B_w(D) \to B_w(D), \qquad \Sigma_{w,\overline{w}} f(x) = \cal D_{\overline{w},w}(\sigma \circ \cal U_{w,\tilde{w}} f)(x), \qquad \forall x\in D.
     \end{equation}
@@ -273,6 +274,64 @@
         \mathfrak{g}_{\Psi_{\overline{w}},\Psi_{\overline{w}'}} = T^*_{\Psi_{\overline{w}'}} \circ T_{\Psi_{w'}} \circ \mathfrak{g}_{\Psi_w,\Psi_{w'}} \circ T^*_{\Psi_w} \circ T_{\Psi_{\overline{w}}},
     \end{equation}
     Finally, all the above concepts generalize to every pair of frame sequences $(\Psi,\Psi)$ that span respectively the input and output function spaces, and we refer \cite{FB2023} for a complete exposition.
+
+    \subsection{Multi-channel versions of elementary operators for CNO}\label{appendix:A.3}
+    This section contains the {\it multi-channel} versions of the elementary mappings which define CNO \ref{def:CNO}.
+
+    \paragraph{\bf Convolution Operator} In the multi-channel settings, discrete kernels $K_w$ are defined on the $d_{in} \times d_{out} \times s^2$ uniform grids on $D$, where $d_{in}$ is the number of input channels and $d_{out}$ is the number of output channels. Formally, the kernels are defined as
+    $$ K_{w,cl} = \sum_{i,j=1}^{k} k_{i,j,cl} \cdot \delta_{z_{ij}}.$$
+    where $c$ is the channel index in the input space, while $l$ is the channel index in the output space. Each pair of channels defines corresponding single-channel convolution operation $\cal K_{w,cl} : B_w(D) \to B_w(D)$. For $a \in B_w(D,\bb R^{d_{in}})$, the multi-channel convolution operation $K_w$ is defined as
+    $$ (K_wa(x))_l = \sum_{c=1}^{d_{in}} \cal K_{w,cl} a_c(x), \qquad l=1, \dots, d_{out}. $$
+
+    \paragraph{\bf Upsampling and Downsampling Operators} To upsample a signal $a \in B_w(D,\bb R^d)$ with $d$ channels from the bandlimit $w > 0$ to the bandlimit $\overline{w} > w$, one should apply the single-channel upsampling operator $\cal U_{w,\overline{w}}$ to each individual channel of the input signal, independently. Formally, for $a \in B_w(D,\bb R^d)$, the multi channel upsampling $\cal U_{w,\overline{w}} : B_w(d,\bb R^d) \to B_{\overline{w}}(D, \bb R^d)$ is defined as
+    $$ (\cal U_{u,\overline{w}}a(x))_c = a_c(x), \qquad \forall x\in D,\quad c=1,\dots, d.$$
+    The downsampling operator of a signal $a \in B_w(D, \bb R^d)$ from the bandlimit $w > 0$ to the bandlimit $\underline{w} < w$ is defined in a similar manner (independent applications of the single-channel downsampling operators).
+
+    \paragraph{\bf Activation layer} The multi-channel version of the activation layer, namely $\Sigma_{w,\overline{w}} : B_w(D,\bb R^d) \to B_w(D, \bb R^d)$, is realized by applying the single-channel activation layer to each of the $d$ channels, independently.
+
+    \subsection{\bf Discrete operators for CNO}
+    In this section, we define the {\it discrete versions} of the elementary mappings in \ref{def:CNO}. Given a {\it discrete}, multi-channel signal $a_s \in \bb R^{s\times s\times d}$ on $s \times s\times d$ uniform grid, we will use the notation $a_s[i,j,c]$ to refer to the $(i,j)$-th coordinate of the $c$-th channel of the signal, where $i,j = 1, \dots, s$ and $c = 1,\dots, d$.
+
+    \paragraph{\bf Convolution operator} Assume that instead of a continuous, single-channel signal $a\in B_w(D)$, one has an access only to its sampled version $a_s \in \bb R^{s\times s}$ on $s\times s$ uniform grid on $D$. Assume that $a_s$ is to be convolved with a {\it discrete} kernel $K_w \in \bb R^{k \times k}$ with $k = 2 \hat{k}+1$. Let $\hat{a}_s \in \bb R^{(s+2\hat{k}) \times (s+2\hat{k})}$ be an extended version of $a_s$ obtained by circular-padding (domain repeats itself so that kernel can slide through without issues at boundary) to zero-padding (adding $0$'s) of $a_s$. The discrete, single-channel convolution $\cal K_s : \bb R^{s\times s} \to \bb R^{s\times s}$ of the signal $a_s$ and the kernel $K_w$ is given by
+    $$ \cal K_s(a_s) = (a_s \star K_w)[i,j] = \sum_{m,n=-\hat{k}}^{\hat{k}} K_w[m,n] \cdot \hat{a}_s [i-m,j-n], \qquad i,j = 1,\dots, s,$$
+    where indices of $\hat{a}$ outside the range $1,\dots, s$ corresponds to the padded samples. By performing the convolution this way as described above, we make sure that the input and output signals have the same spatial dimension $s\times s$.
+
+    \noindent Let $a_s \in \bb R^{s\times s\times d_{in}}$ be a discrete, multi-channel and $K_w \in \bb R^{k\times k\times d_{in} \times d_{out}}$ a discrete kernel with $k = 2\hat{k}+1$. The multi-channel convolution of $a_s$ and $K_w$ is defined by
+    $$(a_s \star K_w)[i,j,l] = \sum_{m,n=-\hat{k}}^{\hat{k}} \sum_{c=1}^{d_{in}} K_w[m,n,c,l] \cdot \hat{a}_s[i-m, j-n, c], \qquad i,j = 1, \dots, s,$$
+    where $l$ corresponds to the index of the output channel and $c$ to the index of the input channel.
+
+    \paragraph{\bf Upsampling and Downsampling Operators} Here, we will define the discrete upsampling and downsampling operators. For $w > 0$, let $h_w$ be the interpolation {\it sinc} filter defined in \ref{eq2.5}. For a discrete, single-channel signal $a_s \in \bb R^{s\times s}$, let $(\tilde{a}_s[n])_{n \in \bb Z}$ be its periodic extension into infinite length given by $\tilde{a}_s[n] = a_s[n \mod s]$ for ${n \in \bb Z}$. The discrete upsampling $\cal U_{s,N} : \bb R^{s\times s} \to \bb R^{Ns \times Ns}$ by an {\it integer factor} $N \in \bb N$ of the signal $a_s \in \bb R^{s\times s}$ is done in {\it two} phases:
+    \begin{enumerate}
+        \item Firstly, in order to increase the number of samples of the signal $a_s$ from $s^2$ to $(Ns)^2$. One transform the signal $a_s$ into the signal $a_{s,\uparrow Ns}$ obtained by separating each two signal samples of $a_s$ with $N-1$ zero-valued samples. It holds that $a_{s,\uparrow Ns} \in R^{Ns \times Ns}$ and 
+        $$ a_{s,\uparrow Ns}[i,j] = \mathds{1}_S (i) \cdot \mathds{1}_S(j) \cdot a_s[i \text{ mod } s, j \text{ mod }s], \quad i,j = 1, \dots Ns,$$
+        where $S = \{1, s+1, \dots ,(N-1)s + 1\} $ and $\mathds{1}_S$ is the indicator function. The matrix representation for $N=2$ and $s=2$ will look like this:
+        $$\begin{bmatrix}
+            \times &0 &\times&0 \\
+            0 &0&0 &0\\
+            \times &0&\times&0\\
+            0 &0&0 &0\\
+        \end{bmatrix}$$
+        where $\times = a_s[i \text{ mod } s, j \text{ mod } s]$ represent non-zero sampled values. It can be seen that each two signal samples are separated by $0$.
+        \item Second step is to convolve the periodic extension of $a_{s,\uparrow Ns}$ with the $h_{s/2}$ interpolation filter to eliminate high frequency components. The upsampled signal is formally obtained by
+        $$ \cal U_{s,N}(a_s)[i,j] = \sum_{n,m \in \bb Z} \tilde{a}_{s,\uparrow Ns}[n,m] \cdot h_{s/2} (is - ns, js - ms), \quad i,j = 1, \dots, Ns.$$
+    \end{enumerate}
+    The discrete downsampling $\cal D_{s,N}: \bb R^{s\times s} \to \bb R^{s/N \times s/N}$ by an {\it integer factor} $N \in \bb N$ of the signal $a_s \in \bb R^{s\times s}$ is also done in {\it two} phases (under the assumption that $s/N \in \bb N$):
+
+    \begin{enumerate}
+        \item First step is to convolve the periodic extension of $a_s$ with the $h_{s/(2N)}$ interpolation filter to eliminate high frequency content. Formally, the first step is defined by
+        $$ a_{s,s/N}[i,j] = \sum_{n,m \in \bb Z} \tilde{a}_s[n,m] \cdot h_{s/(2N)}(is-ns, js-ms), \quad i,j = 1,\dots, s/N.$$
+        \item Second step is to decrease the sampling rate of $a_{s,N/s}$ by keeping every $N$-th sample of the signal. The downsampled signal is formally defined by
+        $$ \cal D_{s,N}(a_s)[i,j] = a_{s,s/N}[(i-1)s+1, (j-1)s+1], \quad i,j = 1,\dots, s/N.$$
+    \end{enumerate}
+    Multi-channel discrete upsampling and downsampling are performed by independent applications of the corresponding single-channel operator.
+
+    \paragraph{\bf Activation layer} Given the definition of the discrete operators, the discrete, single-channel activation layer is defined as
+    $$\Sigma_s : \bb R^{s\times s} \to \bb R^{s\times s}, \quad \Sigma_s(a_s) = \cal D_{s,N} \circ \sigma \circ \cal U_{s,N}(a_s),$$
+    where $\sigma : \bb R\to \bb R$ is an activation function applied point-wise and $N \in \bb N$ is a fixed constant. The multi-channel activation layer is performed by independent applications of the single-channel activation layer.
+
+
+
+
     \section{\bf An Introduction to Frame Theory} \label{appendix:B}
     \noindent Let $\cal H$ be a separable Hilbert space with inner product $\langle\cdot,\cdot\rangle$ and norm $\|\cdot\|$.
     \begin{defn}[Frame]
