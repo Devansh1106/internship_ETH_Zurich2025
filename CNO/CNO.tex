@@ -36,6 +36,7 @@
 \newcommand{\sinc}{\text{sinc}}
 \renewcommand{\qedsymbol}{$\blacksquare$}
 \newtheorem{thm}{Theorem}
+\newtheorem{cor}{Corollary}
 \newtheorem{lem}{Lemma}
 \newtheorem*{lem*}{Lemma}
 \newtheorem{prop}{Proposition}
@@ -114,9 +115,13 @@
     where the last identity arises from the fact that $f \in B_w$. Thus, our convolution operator is directly parameterized in physical space, in contrast to the Fourier space parameterization of convolution in the FNO architecture of \cite{ZL2021}. Hence, our parameterization is of a {\it local} nature.
 
     \paragraph{\bf Upsampling and Downsampling Operator} For some $\overline{w} > w$, we can {\it upsample} a function $f \in B_w$ to the {\it higher band} $B_{\overline{w}}$ by simple setting,
-    $$ \cal U_{w,\overline{w}}: B_w(D) \to B_{\overline{w}}(D), \qquad \cal U_{w,\overline{w}} f(x) = f(x), \qquad \forall x\in D.$$
+    \begin{equation}\label{equp}
+    \cal U_{w,\overline{w}}: B_w(D) \to B_{\overline{w}}(D), \qquad \cal U_{w,\overline{w}} f(x) = f(x), \qquad \forall x\in D.
+    \end{equation}
     On the other hand, for some $\underline{w} < w$, we can {\it downsample} a function $ f\in B_w$ to the {\it lower band} $B_{\underline{w}}$ by setting $\cal D_{w,\underline{w}} : B_w(D) \to B_{\underline{w}}(D),$ defined by 
-    $$\cal D_{w,\underline{w}}f(x) = \left(\frac{\underline{w}}{w}\right)^2 (h_{\underline{w}} \star f)(x) = \left(\frac{\underline{w}}{w}\right)^2 \int_D h_{\underline{w}}(x-y) f(y) dy, \qquad \forall x\in D,$$
+    \begin{equation}\label{eqdown}
+        \cal D_{w,\underline{w}}f(x) = \left(\frac{\underline{w}}{w}\right)^2 (h_{\underline{w}} \star f)(x) = \left(\frac{\underline{w}}{w}\right)^2 \int_D h_{\underline{w}}(x-y) f(y) dy, \qquad \forall x\in D,
+    \end{equation}
     where $\star$ is the convolution operation on functions defined above and $h_{\underline{w}}$ is the so-called {\it interpolation sinc filter}:
     \begin{equation}\label{eq2.5}
         h_w(x_0,x_1) = \sinc(2wx_0) \cdot \sinc(2wx_1), \qquad (x_0,x_1) \in \bb R^2.
@@ -125,7 +130,7 @@
     \paragraph{\bf Activation Layer} Naturally, one can apply the activation function pointwise to any function. However, it is well-known that such an application will no longer respect the band-limits of the underlying function space and generate {\it aliasing error} \cite{FB2023}. In particular, nonlinear activations can generate features at arbitrarily high frequencies. Our aim is to respect the underlying CDE, we will modulate the application of the activation function so that the resulting outputs falls within desired band limits.
 
     \noindent First, we will upsample the input function $f \in B_w$ to a higher bandlimit $\overline{w} > w$, then apply the activation function pointwise and finally downsample the result back to the original bandlimit $w$. Implicitly assuming that $\overline{w}$ is large enough such that $\sigma(B_w) \subset B_{\overline{w}}$, we define the activation layer as,
-    \begin{equation}
+    \begin{equation}\label{eqactivation}
         \Sigma_{w,\overline{w}} : B_w(D) \to B_w(D), \qquad \Sigma_{w,\overline{w}} f(x) = \cal D_{\overline{w},w}(\sigma \circ \cal U_{w,\tilde{w}} f)(x), \qquad \forall x\in D.
     \end{equation}
 
@@ -142,9 +147,7 @@
     \begin{prop}
         Convolutional Neural Operator $\cal G: B_w(D,\bb R^{d_{\cal X}}) \to B_w(D,\bb R^{d_{\cal Y}})$ is a Representation equivalent neural operator or ReNO, in the sense of Defintion \ref{def:ReNO}.      
     \end{prop}
-    \begin{proof}
-        TODO
-    \end{proof}
+    \noindent The proof of the above result can be found in the paper (\cite{BR2023}, SM A.5).
 
     \section{Universal Approximation by CNOs}
     \noindent We consider the following abstract PDE in the domain $D = \bb T^2$,
@@ -152,11 +155,65 @@
         \cal L(u) = 0, \qquad \cal B(u) = 0,
     \end{equation}
     with $\cal L$ being the differential operator and $\cal B$ a boundary operator. We assume that the differential operator $\cal L$ only depends on the coordinate $x$ through a {\it coefficient} function $a \in H^r(D).$ The corresponding {\it solution} operator is denoted by $\cal G^\dag : \cal X^* \subset H^r(D) \to H^r(D) : a \mapsto u,$ with $u$ beign the solution of the PDE (\ref{eq:pde}). We assume that $\cal G^\dag$ is continuous. Moreover, we also assume the following modulus of continuity,
-    \begin{equation}
+    \begin{equation}\label{eq3.2}
         \left\|\cal G^\dag(a) - \cal G^\dag(a')\right\|_{L^p(\bb T^2)} \leq \omega\left(\|a - a'\|_{H^\sigma(\bb T^2)}\right),
     \end{equation}
-    for some $p \in \{2,\infty\}$ and $0 \leq \sigma \leq r-1$, and where $\omega : [0\infty) \to [0,\infty)$ is a monotonously increasing function with $\lim_{y \to 0} \omega (y) = 0$.
+    for some $p \in \{2,\infty\}$ and $0 \leq \sigma \leq r-1$, and where $\omega : [0\infty) \to [0,\infty)$ is a monotonously increasing function with $\lim_{y \to 0} \omega (y) = 0$. Above equation will be automatically satisfied if $\cal X^*$ is compact and $\cal G^\dag$ is continuous. Under these assumptions, we have the following {\it universality theorem} for CNOs.
 
+    \begin{thm}
+        Let $\sigma \in \bb N_0$ and $p \in \{2,\infty\}$ as in (\ref{eq3.2}), $r > \max{\sigma, 2/p}$ and $B > 0$. For any $\varepsilon > 0$ and any operator $\cal G^\dag$, as defined above, there exists a CNO $\cal G$ such that for every $a \in \cal X^*$ with $\|a\|_{H^r(D)} \geq B$ it holds,
+        \begin{equation}
+            \|\cal G^\dag(a) - \cal G(a)\|_{L^p(D)} < \epsilon.
+        \end{equation}
+    \end{thm}
+    \noindent The more direct proof for the above result can be found in the paper (\cite{BR2023}, SM B).
+    
+    \subsection{Alternate proof by using universality of ANOs}
+    Here, we will give an alternate proof by showing that CNOs are equivalent to ANO under suitable choice of the kernel and then we refer to the paper \cite{SL2024} for the fact that ANOs are universal approximator, specifically Theorem $2.1$ and Theorem $2.2$ in the paper \cite{SL2024} which in turn imply that CNOs are universal approximators.
+
+    \begin{proof}
+        Recall that the hidden layers of the CNO are of the form
+        \begin{equation}
+            v_{l+1} = \cal P_l \circ \Sigma_l \circ \cal K_l(v_l), \qquad 1 \leq l \leq L-1
+        \end{equation}
+        where $\cal K$ is the convolution operator, $\Sigma$ is the activation operator and $\cal P$ is either a downsampling or a upsampling operator. From equation \ref{equp}, \ref{eqdown} and \ref{eqactivation}, we have the final form of the activation layer as 
+        \begin{equation}\label{eq:cno_activation}
+            v_{l+1} = \cal P_l \circ \cal D_{\overline{w},w} \circ \sigma \circ \cal U_{w,\tilde{w}} \circ \cal K_l(v_l), \qquad 1 \leq l \leq L-1
+        \end{equation}
+        where the convolution operator $\cal K_l$ is given by integration against a discrete kernel $K_w \in \bb R^{k \times k}$, 
+        $$  K_w = \sum_{i,j = 1}^{k} k_{ij} \cdot \delta_{z_{ij}}, \qquad \cal K_wv(x) = (K_w \star v)(x) = \sum_{i,j=1}^{k}k_{ij}v(x-z_{ij}), \quad\forall x \in D$$
+        where $k \in \bb N$ is the kernel size, $\delta_x$ is the dirac measure at $x \in D$ and $z_{ij}$ are the grid points. Without loss of generality, let us assume that
+        \begin{equation}\label{eq:kernel_cno}
+            k_{ij}= |D|^{-1}\left(\frac{1}{N}\right)^2
+        \end{equation}
+        for $i,j \in \bb N$ and $N$ being the total number of grid points as given in the next paragraph. Then we have the following form of convolution operator
+        \begin{equation}\label{eq:convop}
+            \cal K_wv(x) = \frac{1}{|D|}\left(\frac{1}{N}\right)^2 \sum_{i=1}^{k} \sum_{j=1}^{k} v(x-z_{ij}), \qquad x \in D
+        \end{equation}
+        In order to show that above is equivalent to nonlocality in ANO, we need to show that nonlocality (\ref{eq:convop}) is of the form
+        \begin{equation}\label{eq:ano_nonlocality}
+            \fint_D v(y)dy = \frac{1}{|D|} \int_D v(y)dy.
+        \end{equation}
+        For this purpose, we use the properties of the space to which the function $v$ belongs to i.e. bandlimited space. The problem now can be reduced to show that how accurately we can represent this integral by the summation involved in \ref{eq:convop}. In particular, appendix \ref{appendix:trapezoidal} shows that {\bf the $N$-point trapezoidal rule is exact for bandlimited functions of bandwidth $w$ for all $N > w$}. Hence by using multivariate trapezoidal quadrature (appendix \ref{appendix:trapezoidal}) for $D = \bb T^2$, the expression in (\ref{eq:ano_nonlocality}) becomes
+        \begin{equation}\label{eq:ano_newform}
+            \frac{1}{|D|} \int_D v(y) dy = \frac{1}{|D|}\left(\frac{1}{N}\right)^2 \sum_{i=1}^{N} \sum_{j=1}^{N} v(z_{ij})
+        \end{equation}
+        where the period of the function $v$ is $1$ ($\because D =\bb T^2$), $N$ is the number of grid points such that the grid size $\leq 1/2w$ to satisfy the requirements of the Whittaker-Shannon-Kotelnikov sampling theorem \cite{MU2000}. $z_{ij}$ are the grid points.
+
+        \noindent Now, we can modify the equation \ref{eq:convop} by taking $k=N$ as the kernel size and then the equations \ref{eq:convop} and \ref{eq:ano_newform} are same.
+        
+        \begin{rem}
+            Note that in equation \ref{eq:convop} $v$ has been evaluated at a shifted grid $x-z_{ij}$ but still the final answer will be same as the integral until the number of evaluation points are $N$ and the discretization points will not matter. This is because exactness of the trapezoidal rule for bandlimited functions depends on $N >w$ and not on specific discretization points (Cororllary 3.3, \cite{LT2014}).
+        \end{rem}
+        \paragraph{\bf How does $\cal U$ and $\cal D$ operators affects nonlocality?} \label{par:1} The upsampling operator $\cal U$ and downsampling operator $\cal D$ changes the bandwidth $w$ of the input functions. They either increase it (upsampling) or decrease it (downsampling). The exactness of trapezoidal rule as shown in (Corollary 3.3, \cite{LT2014}) depends on $N$, number of grid points. While upsampling if bandwidth has been increased to $\overline{w} > w$, then exactness still remains valid since exactness is true for all $N > w$ and in particular $N > \tilde{w} > w$.
+
+        \noindent While downsampling to the bandwidth $\underline{w} < w$, exactness is trivially satisfied since $N > w > \underline{w}$ and therefore there always exists $N$ which guarentees exactness. Now from equation \ref{eq:cno_activation}, we note that $\cal P_l$ is either $\cal D$ or $\cal U$ hence it can be handled as mentioned in the above paragraph.
+        $$ v_{l+1} = \cal P_l \circ \cal D_{\overline{w},w} \circ \sigma \circ \cal U_{w,\tilde{w}} \circ \cal K_l(v_l), \qquad 1 \leq l \leq L-1 $$
+        In above discussion, we have shown that there always exists $N > w$ that guarentees exactness hence the nonlocality of ANO can be exactly represented in discrete form by $N$- trapezoidal rule. This shows that hidden layer of CNO for specific choice of weights given in \ref{eq:kernel_cno} recovers ANO. Therefore, as an immediate consequence of the universal approximation (Theorem 2.2, \cite{SL2024}) we obtain:
+        \begin{cor}[Convolutional Neural Operator]
+            The Convolutional neural operator architecture is universal in the setting of Theorem 2.2 of \cite{SL2024}.
+        \end{cor}
+    \end{proof}
 
 
 
@@ -215,7 +272,7 @@
 
     \subsection{Continuous-Discrete Equivalence for Operator \texorpdfstring{$\cal G^*$}{}} \label{appendix:A.2}
     For every $w > 0$, we denote by $B_w(\bb R^2)$ the space of multivariate bandlimited functions
-    $$B_w(\bb R^2) = \{f \in L^2(\bb R^2) : \text{supp}\hat{f} \subset eq [-w,w]^2\},$$
+    $$B_w(\bb R^2) = \{f \in L^2(\bb R^2) : \text{supp}\hat{f} \subseteq [-w,w]^2\},$$
     where $\hat{f}$ denotes the Fourier transform on $L^1(\bb R)$ 
     $$ \hat{f}(\xi) := \int_{\bb R}f(x) e^{-2\pi ix\xi} dx, \qquad \xi \in \bb R,$$
     which extends to $L^2(\bb R)$ by a classical density argument ($L^1(\bb R^n) \cap L^2(\bb R^n)$ is dense in $L^2(\bb R^n), n \geq 1$.) The set $\Psi_w = \{\sinc(2wx_1 - m) \cdot \sinc(2wx_2 - n)\}_{m,n \in \bb Z}$ constitutes an orthonormal basis for $B_w(\bb R^2)$. The bounded operator
@@ -475,6 +532,23 @@
         Immediately implied by the formula \ref{eq:frame_change}. This proposition establishes the link between aliasing and representation equivalence i.e. if aliasing is $0$ then it will imply the representation equivalence error to be $0$.
     \end{proof}
 
+    \section{\bf Trapezoidal rule is exact for bandlimited functions} \label{appendix:trapezoidal} % add a subsection on tensor product rule.
+    \noindent For every $w > 0$, we denote the $B_w(D=\bb T^2, \bb R)$ as the space of bandlimited functions
+    $$ B_w(D,\bb R) = \{f \in L^2(D, \bb R) : \text{supp}\hat{f} \subseteq [-w,w]^2\},$$
+    where $\hat{f}$ denotes the Fourier transform on $L^1(D, \bb R)$ which can be extended to $L^2(D, \bb R)$ by classical density argument. It can be shown that $\bb T^2 \cong ([0,1]\times[0,1])/\sim$ where $\sim$ is a equivalence relation. Hence we can represent $\bb T^2$ as a unit square with identifying $(x,0) \sim (x,1)$ and $(0,y) \sim (1,y)$ i.e periodic boundary. Since $f\in B_w(D,\bb R) \subset L^2(D,\bb R)$, it can be uniquely represented by a convergent Fourier series. As pointed out in \cite{RB2003}, the expression will look like
+    \begin{equation}\label{eq:D.1}
+        f(x,y) = \sum_{|k|< w} \sum_{|l| < w} c_{k,l}~e^{2\pi i (kx+ly)}, \qquad (x,y) \in [0,1]^2 
+    \end{equation}
+    where $c_{k,l}= \int_{0}^{1}\int_{0}^{1} f_i(x,y)~e^{-2\pi i (kx+ly)} dx dy$.
+
+    \noindent Now, we can extend the Fourier transform to vector-valued function in a natural way i.e. component-wise Fourier transform. Since the function which we are working with is $v \in B_w(D,\bb R^{d_0})$, we can write this as $v(x,y) = (v_1(x,y),v_2(x,y), \dots v_{d_0}(x,y))$ where $v_i(x,y) : D \to \bb R$ for all $i \in \{1, \dots , d_0\}$. From now on we will consider our analysis for a component $v_i(x,y)$ for arbitrary $i$. 
+
+    \noindent As mentioned in the equation \ref{eq:D.1}, $v_i(x,y)$ can be written as a trigonometric polynomial of degree $w$. Furthermore, corollary 3.3 of \cite{LT2014} shows that $N$-point trapezoidal rule is exact for all $N > w$. This is true for $v_i(x,y)$ for arbitrary $i$ hence each component can be exactly represented by the quadrature. In particular, the nonlocality $\fint v(y)dy$ where $v$ is a $d_0$-valued function can be exactly represented by the quadrature rule applied component. This proves the claim.
+    \begin{rem}
+        The trapezoidal rule that has been mentioned above is given by
+        $$ \int_{D} v(y) dy = \int_{0}^{1} \int_{0}^{1} v(y) dy =  \left(\frac{1}{N}\right)^2 \sum_{i=1}^{N} \sum_{j=1}^{N} v(z_{ij})$$
+    This is 2D version of the trapezoidal rule derived in a natural way from 1D rule. Since the double integral can be written as iterated integration ($\because f$ is integrable and Fubini's thoerem) we use 1D trapezoidal rule twice with suitable values of the parameters. More discussion can be found here \cite{kth2013}.
+    \end{rem}
 
 \bibliographystyle{plainnat}
 \bibliography{ref_cno}
