@@ -67,15 +67,15 @@
 \end{abstract}
 \maketitle
 \section{\bf \large Introduction}
-    Given the ubiquitous nature of partial differential equations (PDEs) as mathematical models in the science and engineering, it becomes important to develop method to approximate the solutions to a PDE with less computational cost. There are well-established numerical methods such as finite differences, finite elements, finite volumes and spectral methods that have been successfully used to approximate PDE solution operator. Hwoever, the high computational cost of these methods, particularly in high dimensions and for {\it many query} problems such Uncertainity Quantification (UQ), inverse problems etc. calls upon the design of {\it fast, robus and accurate} surrogates.
+    Given the ubiquitous nature of partial differential equations (PDEs) as mathematical models in the science and engineering, it becomes important to develop method to approximate the solutions to a PDE with less computational cost. There are well-established numerical methods such as finite differences, finite elements, finite volumes and spectral methods that have been successfully used to approximate PDE solution operator. However, the high computational cost of these methods, particularly in high dimensions and for {\it many query} problems such Uncertainity Quantification (UQ), inverse problems etc. calls upon the design of {\it fast, robust and accurate} surrogates.
 
     \noindent As {\it operators} are the objects of interest in solving PDEs, learning such operators from data which is loosely termed as {\it operator learning}, has emerged as a dominant paradigm in recent years. As it is argued in a recent paper \cite{FB2023}, a structure-preserving operator learning algorithm or {\it representation equivalent neural operator} has to respect some form of continuous-discrete equivalence (CDE) in order to learn the underlying operator, rather than just a discrete representation of it. Failure to respect such a CDE can lead to the so-called aliasing errors \cite{FB2023} and affect model performance at multiple discrete resolutions.
 
     \noindent The naive use of convolutional neural networks (CNNs) in the context of operator learning, see \cite{FB2023,Zhu2018,ZL2021} on how using CNNs for operator learning leads to results that heavily rely on the underlying grid resolution. The author has made the following contributions in this paper:
     \begin{itemize}
-        \item The author proposes novel modifications to CNNs in order to enforce structure-preserving continuous-discrete equivalence (CDE) and enable the genuine, alias-free, learning of operators. The  resulting architecture, termed as {\it Convolutional Neural Operator}(CNO), is provided as novel {\it operator} adaptation of the widely used U-Net architecture.
-        \item The author has shown that CNO is a {\it representation equivalent neural operator} in the sense of \cite{FB2023}, and also proved a universality result for CNOs to any desired accuracy.
-        \item CNO has been tested on a {\it novel} set of benchmarks, known as {\it Representative PDE Benchmarks}(RPB), that span across a variety of PDEs ranging from linear elliptic and hyperbolic to nonlinear parabolic and hyperbolic PDEs, with possibly {\it multiscale solutions}. 
+        \item The author proposes novel modifications to CNNs in order to enforce structure-preserving continuous-discrete equivalence (CDE) and enable the genuine, alias-free, learning of operators. The  resulting architecture, termed as {\it Convolutional Neural Operator} (CNO), is provided as novel {\it operator} adaptation of the widely used U-Net architecture.
+        \item The author has shown that CNO is a {\it representation equivalent neural operator} in the sense of \cite{FB2023}, and also proved a universality result for CNOs.
+        \item CNO has been tested on a {\it novel} set of benchmarks, known as {\it Representative PDE Benchmarks} (RPB), that span across a variety of PDEs ranging from linear elliptic and hyperbolic to nonlinear parabolic and hyperbolic PDEs, with possibly {\it multiscale solutions}. 
     \end{itemize}
 
     \section{Convolutional Neural Operator}
@@ -90,7 +90,7 @@
     \end{equation}
     for some $w > 0$ and with $\hat{f}$ denoting the Fourier transform of $f$. It is shown in appendix \ref{appendix:A.1} that for any $\varepsilon > 0$, there exists a $w$, large enough depending on $r$, and a continuous operator $\cal G^* : B_w(D) \to B_w(D)$, such that $\|\cal G^\dag - \cal G^*\| \leq \varepsilon,$ with $\|\cdot\|$ denoting the corresponding operator norm. Along with that \ref{appendix:A.2} shows that we can define discrete versions of $\cal G^*$ using the underlying $sinc$ basis for bandlimited functions and establish a continuously-discrete equivalence for it.
 
-    \paragraph{\bf Definition of CNO} \label{def:CNO} Given above context, our goal will be approximate the operator $\cal G^*$ in a {\it structure-preserving manner} i.e. as the underlying operator maps between spaces of bandlimited functions, we will construct out operator approximation architecture to also map bandlimited functions to bandlimited functions, thus respecting the continuous-discrete equivalence.
+    \paragraph{\bf Definition of CNO} \label{def:CNO} Given above context, our goal will be to approximate the operator $\cal G^*$ in a {\it structure-preserving} manner i.e. as the underlying operator maps between spaces of bandlimited functions, we will construct our operator approximation architecture to also map bandlimited functions to bandlimited functions, thus respecting the continuous-discrete equivalence.
 
     \noindent We denote the operator $\cal G : B_w(D) \to B_w(D)$ as a {\it convolutional neural operator} (CNO) which we define as a compositional mapping between functions as
     \begin{equation}\label{eq2.3}
@@ -104,8 +104,8 @@
     $$ P : \left\{u \in B_w(D,\bb R^{d_{\cal X}}) \right\} \to \left\{u \in B_w(D,\bb R^{d_0}) \right\}$$ 
     Here, $d_0 > d_{\cal X}$ is the number of channels in the lifted, latent space. The lifting operation is performed by a convolution operator which will be defined below.
 
-    \noindent Then, the lifted function is processed through the composition of a series of mappings between functions (layers), with each layer consisting of three elementary mappings, i.e. $\cal P_l$ is either the {\it upsampling} or {\it downsampling} operator, $\cal K_l$ is the convolution operator and $\Sigma_l$ is the activation operator $Q$, defined as 
-    $$ Q : \left\{v_L \in B_w(D,\bb R^{d_L}) \right\} \to \left\{\overline{u} \in B_w(D,\bb R^{d_{\cal Y}}) \right\}.$$
+    \noindent Then, the lifted function is processed through the composition of a series of mappings between functions (layers), with each layer consisting of three elementary mappings, i.e. $\cal P_l$ is either the {\it upsampling} or {\it downsampling} operator, $\cal K_l$ is the convolution operator and $\Sigma_l$ is the activation operator. Finally, the last output function in the iterative procedure $v_L$ is projected to the output space with a {\it projection operator} $Q$, defined as 
+    $$ Q : \left\{v_L \in B_w(D,\bb R^{d_0}) \right\} \to \left\{\overline{u} \in B_w(D,\bb R^{d_{\cal Y}}) \right\}.$$
     The projection operation is also performed by a convolution operator defined below.
 
     \paragraph{\bf Convolution Operator} For simplicity, {\it single channel} version of the convolution operator $K_l$ is presented here. See appendix \ref{appendix:A.3} for {\it multi-scale} version. Convolution operations are performed with discrete kernals
@@ -169,7 +169,7 @@
     \noindent The more direct proof for the above result can be found in the paper (\cite{BR2023}, SM B).
     
     \subsection{Alternate proof by using universality of ANOs}
-    Here, we will give an alternate proof by showing that CNOs are equivalent to ANO under suitable choice of the kernel and then we refer to the paper \cite{SL2024} for the fact that ANOs are universal approximator, specifically Theorem $2.1$ and Theorem $2.2$ in the paper \cite{SL2024} which in turn imply that CNOs are universal approximators.
+    Here, we will give an alternate proof by showing that CNOs are equivalent to ANO under suitable choice of the kernel and then we refer to the paper \cite{SL2024} for the fact that ANOs are universal approximator, specifically Theorem $2.2$ in the paper \cite{SL2024} which in turn imply that CNOs are universal approximators.
 
     \begin{proof}
         Recall that the hidden layers of the CNO are of the form
@@ -186,7 +186,7 @@
         \begin{equation}\label{eq:kernel_cno}
             k_{ij}= |D|^{-1}\left(\frac{1}{N}\right)^2
         \end{equation}
-        for $i,j \in \bb N$ and $N$ being the total number of grid points as given in the next paragraph. Then we have the following form of convolution operator
+        for all $i,j \in \bb N$ and $N$ being the total number of grid points as given in the next paragraph. Then we have the following form of convolution operator
         \begin{equation}\label{eq:convop}
             \cal K_wv(x) = \frac{1}{|D|}\left(\frac{1}{N}\right)^2 \sum_{i=1}^{k} \sum_{j=1}^{k} v(x-z_{ij}), \qquad x \in D
         \end{equation}
@@ -194,7 +194,7 @@
         \begin{equation}\label{eq:ano_nonlocality}
             \fint_D v(y)dy = \frac{1}{|D|} \int_D v(y)dy.
         \end{equation}
-        For this purpose, we use the properties of the space to which the function $v$ belongs to i.e. bandlimited space. The problem now can be reduced to show that how accurately we can represent this integral by the summation involved in \ref{eq:convop}. In particular, appendix \ref{appendix:trapezoidal} shows that {\bf the $N$-point trapezoidal rule is exact for bandlimited functions of bandwidth $w$ for all $N > w$}. Hence by using multivariate trapezoidal quadrature (appendix \ref{appendix:trapezoidal}) for $D = \bb T^2$, the expression in (\ref{eq:ano_nonlocality}) becomes
+        For this purpose, we use the properties of the space to which the function $v$ belongs to i.e. bandlimited space. The problem now can be reduced to show that how accurately we can represent this integral by the summation involved in \ref{eq:convop}. In particular, appendix \ref{appendix:trapezoidal} shows that {\bf the $N$-point trapezoidal rule is exact for bandlimited functions of bandwidth $w$ for all $N > w$}. Hence by using 2D trapezoidal quadrature (Remark \ref{rem:2D_quadrature}, appendix \ref{appendix:trapezoidal}) for $D = \bb T^2$, the expression in (\ref{eq:ano_nonlocality}) becomes
         \begin{equation}\label{eq:ano_newform}
             \frac{1}{|D|} \int_D v(y) dy = \frac{1}{|D|}\left(\frac{1}{N}\right)^2 \sum_{i=1}^{N} \sum_{j=1}^{N} v(z_{ij})
         \end{equation}
@@ -203,9 +203,9 @@
         \noindent Now, we can modify the equation \ref{eq:convop} by taking $k=N$ as the kernel size and then the equations \ref{eq:convop} and \ref{eq:ano_newform} are same.
         
         \begin{rem}
-            Note that in equation \ref{eq:convop} $v$ has been evaluated at a shifted grid $x-z_{ij}$ but still the final answer will be same as the integral until the number of evaluation points are $N$ and the discretization points will not matter. This is because exactness of the trapezoidal rule for bandlimited functions depends on $N >w$ and not on specific discretization points (Cororllary 3.3, \cite{LT2014}).
+            Note that in equation \ref{eq:convop} $v$ has been evaluated at a shifted grid $x-z_{ij}$ but still the final answer will be same as the integral until the number of evaluation points are $N$ and the specific discretization points will not matter. This is because exactness of the trapezoidal rule for bandlimited functions depends on $N >w$ and not on specific discretization points (Cororllary 3.3, \cite{LT2014}).
         \end{rem}
-        \paragraph{\bf How does $\cal U$ and $\cal D$ operators affects nonlocality?} \label{par:1} The upsampling operator $\cal U$ and downsampling operator $\cal D$ changes the bandwidth $w$ of the input functions. They either increase it (upsampling) or decrease it (downsampling). The exactness of trapezoidal rule as shown in (Corollary 3.3, \cite{LT2014}) depends on $N$, number of grid points. While upsampling if bandwidth has been increased to $\overline{w} > w$, then exactness still remains valid since exactness is true for all $N > w$ and in particular $N > \tilde{w} > w$.
+        \paragraph{\bf How does $\cal U$ and $\cal D$ operators affects nonlocality?} \label{par:1} The upsampling operator $\cal U$ and downsampling operator $\cal D$ changes the bandwidth $w$ of the input functions. They either increase it (upsampling) or decrease it (downsampling). The exactness of trapezoidal rule as shown in (Corollary 3.3, \cite{LT2014}) depends on $N$, number of grid points. While upsampling if bandwidth has been increased to $\overline{w} > w$, then exactness still remains valid since exactness is true for all $N > w$ and in particular $N > \overline{w} > w$.
 
         \noindent While downsampling to the bandwidth $\underline{w} < w$, exactness is trivially satisfied since $N > w > \underline{w}$ and therefore there always exists $N$ which guarentees exactness. Now from equation \ref{eq:cno_activation}, we note that $\cal P_l$ is either $\cal D$ or $\cal U$ hence it can be handled as mentioned in the above paragraph.
         $$ v_{l+1} = \cal P_l \circ \cal D_{\overline{w},w} \circ \sigma \circ \cal U_{w,\tilde{w}} \circ \cal K_l(v_l), \qquad 1 \leq l \leq L-1 $$
@@ -535,19 +535,19 @@
     \section{\bf Trapezoidal rule is exact for bandlimited functions} \label{appendix:trapezoidal} % add a subsection on tensor product rule.
     \noindent For every $w > 0$, we denote the $B_w(D=\bb T^2, \bb R)$ as the space of bandlimited functions
     $$ B_w(D,\bb R) = \{f \in L^2(D, \bb R) : \text{supp}\hat{f} \subseteq [-w,w]^2\},$$
-    where $\hat{f}$ denotes the Fourier transform on $L^1(D, \bb R)$ which can be extended to $L^2(D, \bb R)$ by classical density argument. It can be shown that $\bb T^2 \cong ([0,1]\times[0,1])/\sim$ where $\sim$ is a equivalence relation. Hence we can represent $\bb T^2$ as a unit square with identifying $(x,0) \sim (x,1)$ and $(0,y) \sim (1,y)$ i.e periodic boundary. Since $f\in B_w(D,\bb R) \subset L^2(D,\bb R)$, it can be uniquely represented by a convergent Fourier series. As pointed out in \cite{RB2003}, the expression will look like
+    where $\hat{f}$ denotes the Fourier transform on $L^1(D, \bb R)$ which can be extended to $L^2(D, \bb R)$ by classical density argument. It can be shown that $\bb T^2 \cong ([0,1]\times[0,1])/\sim$ where $\sim$ is an equivalence relation. Hence we can represent $\bb T^2$ as a unit square with identifying $(x,0) \sim (x,1)$ and $(0,y) \sim (1,y)$ i.e periodic boundary. Since $f\in B_w(D,\bb R) \subset L^2(D,\bb R)$, it can be uniquely represented by a convergent Fourier series. As pointed out in \cite{RB2003}, the expression for $f$ will look like
     \begin{equation}\label{eq:D.1}
         f(x,y) = \sum_{|k|< w} \sum_{|l| < w} c_{k,l}~e^{2\pi i (kx+ly)}, \qquad (x,y) \in [0,1]^2 
     \end{equation}
     where $c_{k,l}= \int_{0}^{1}\int_{0}^{1} f_i(x,y)~e^{-2\pi i (kx+ly)} dx dy$.
 
-    \noindent Now, we can extend the Fourier transform to vector-valued function in a natural way i.e. component-wise Fourier transform. Since the function which we are working with is $v \in B_w(D,\bb R^{d_0})$, we can write this as $v(x,y) = (v_1(x,y),v_2(x,y), \dots v_{d_0}(x,y))$ where $v_i(x,y) : D \to \bb R$ for all $i \in \{1, \dots , d_0\}$. From now on we will consider our analysis for a component $v_i(x,y)$ for arbitrary $i$. 
+    \noindent Now, we can extend the Fourier transform to vector-valued function in a natural way i.e. component-wise Fourier transform \cite{TN2012}. Since the function which we are working with is $v \in B_w(D,\bb R^{d_0})$, we can write this as $v(x,y) = (v_1(x,y),v_2(x,y), \dots v_{d_0}(x,y))$ where $v_i(x,y) : D \to \bb R$ for all $i \in \{1, \dots , d_0\}$. From now on we will consider our analysis for a component $v_i(x,y)$ for arbitrary $i$. 
 
-    \noindent As mentioned in the equation \ref{eq:D.1}, $v_i(x,y)$ can be written as a trigonometric polynomial of degree $w$. Furthermore, corollary 3.3 of \cite{LT2014} shows that $N$-point trapezoidal rule is exact for all $N > w$. This is true for $v_i(x,y)$ for arbitrary $i$ hence each component can be exactly represented by the quadrature. In particular, the nonlocality $\fint v(y)dy$ where $v$ is a $d_0$-valued function can be exactly represented by the quadrature rule applied component. This proves the claim.
-    \begin{rem}
+    \noindent As mentioned in the equation \ref{eq:D.1}, $v_i(x,y)$ can be written as a trigonometric polynomial of degree $w$. Furthermore, corollary 3.3 of \cite{LT2014} shows that $N$-point trapezoidal rule is exact for all $N > w$. This is true for $v_i(x,y)$ for arbitrary $i$ hence each component can be exactly represented by the quadrature. In particular, the nonlocality $\fint v(y)dy$ where $v$ is a $d_0$-valued function can be exactly represented by the quadrature rule applied component wise. This proves the claim.
+    \begin{rem}\label{rem:2D_quadrature}
         The trapezoidal rule that has been mentioned above is given by
         $$ \int_{D} v(y) dy = \int_{0}^{1} \int_{0}^{1} v(y) dy =  \left(\frac{1}{N}\right)^2 \sum_{i=1}^{N} \sum_{j=1}^{N} v(z_{ij})$$
-    This is 2D version of the trapezoidal rule derived in a natural way from 1D rule. Since the double integral can be written as iterated integration ($\because f$ is integrable and Fubini's thoerem) we use 1D trapezoidal rule twice with suitable values of the parameters. More discussion can be found here \cite{kth2013}.
+    This is 2D version of the trapezoidal rule derived in a natural way from 1D rule. Since the double integral can be written as iterated integration ($\because f$ is integrable and Fubini's thoerem), we use 1D trapezoidal rule twice with suitable values of the parameters. More discussion can be found here \cite{kth2013}.
     \end{rem}
 
 \bibliographystyle{plainnat}
