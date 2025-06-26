@@ -1,0 +1,109 @@
+%% Credits of this ams template are with respective people. @Devansh1106 neither own this template nor the credits. 
+\documentclass[reqno,10pt]{amsart}
+\usepackage[a4paper, margin=1.25in]{geometry} % Change 1in to desired size
+\usepackage[numbers]{natbib}
+\setlength{\bibsep}{8pt}
+\usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{tikz-cd}
+\usepackage{subcaption}
+% \captionsetup[subfigure]{labelformat=parens,labelfont=normalfont}
+% \renewcommand{\thesubfigure}{\alph{subfigure}}
+\usepackage{hyperref}
+\usepackage{lineno}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{esint}
+\usepackage{fancyhdr}
+
+\DeclareMathAlphabet{\EuScript}{U}{eus}{m}{n}
+
+\setlength{\parskip}{0.5\baselineskip}%
+\setlength{\parindent}{20pt}
+\theoremstyle{plain}
+
+\pagestyle{fancy}
+\fancyhf{} % Clear default headers/footers
+\setlength{\headheight}{10.0pt}
+% Even pages: Paper title
+\fancyhead[LE]{\footnotesize\textit{Universality of POSEIDON in settings of ANOs}}
+
+% Odd pages: Author name
+\fancyhead[RO]{\footnotesize\textit{Devansh Tripathi}}
+
+\newtheorem*{thm*}{Theorem}
+%% this allows for theorems which are not automatically numbered
+\newcommand{\sinc}{\text{sinc}}
+\renewcommand{\qedsymbol}{$\blacksquare$}
+\newtheorem{thm}{Theorem}
+\newtheorem{cor}{Corollary}
+\newtheorem{lem}{Lemma}
+\newtheorem*{lem*}{Lemma}
+\newtheorem{prop}{Proposition}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{eg}{Example}
+\newtheorem{rem}{Remark}
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cal}[1]{\mathcal{#1}}
+\newcommand{\eus}[1]{\EuScript{#1}}
+
+\hypersetup{
+    colorlinks=false,
+    linkcolor=blue,    % Internal links (sections, equations)
+    citecolor=red,     % Citation links
+    urlcolor=magenta   % URLs (DOIs, websites)
+}
+%% The above lines are for formatting.  In general, you will not want to change these.
+
+\title{Report on the paper ``{\Large P}OSEIDON: Efficient Foundation Models for PDEs''}
+\author{Devansh Tripathi$^1$ \\ ETH Z\lowercase{\"urich}}
+\thanks{$^1$Seminar für Angewandte Mathematik, HG E 62.2, Rämistrasse 101, 8092 Zürich, Switzerland \\ \href{mailto:devansh.tripathi@sam.math.ethz.ch}{\texttt{devansh.tripathi@sam.math.ethz.ch}}}
+
+\begin{document}
+\numberwithin{equation}{section}
+
+\begin{abstract}
+    In the paper \cite{MH2024}, the author introduces a foundation model {\large P}OSEIDON, for learning the solution operators of PDEs. It is based on a multiscale operator transformer, with time-conditioned layer norms that enable continuous-in-time evaluations. They propose a novel training strategy leveraging the semi-group property of time-dependent PDEs to allow for significant scaling-up of the training data. {\large P}OSEIDON is a pretrained model on a diverse, large scale dataset for the governing equations of fluid dynamics. The authors show that {\large P}OSEIDON exhibits excellent performance by outperforming baselines significantly, both in terms of sample efficiency and accuracy. They also the generalization ability of the model to unseen physics.
+\end{abstract}
+\maketitle
+\section{\bf Introduction}
+\noindent Partial Differential Equations (PDEs) are referred to as the language of physics as they mathematically model a very wide variety of physical phenomena across a vast range of spatio-temporal scales. Numerical methods such as finite difference, finite element, spectral methods etc. are commonly used to approximate or simulate PDEs. However, their (prohibitive) computational cost, particularly for the so-called many-query problems, has prompted the design of various data-driven machine learning (ML) methods for simulating PDEs. Among them, operator learning algorithms have gained increasing traction in recent years.
+
+\noindent These methods aim to learn the underlying PDE solution operator, which maps function spaces inputs (initial and boundary condition, coefficients, sources) to the PDE solution. They include algorithms which approximate a {\it discretization}, on a fixed grid, of the underlying solution operator. These can be based on convolutions \cite{YZ2018}, graph neural network \cite{TP2021,ASG2020} or transformers \cite{MP2022,ZH2023}. Other operator learning alogorithms are {\it neural operators} which can directly process function space input and outputs, possibly sampled on multiple grid resolutions. These include DeepONets \cite{LL2021}, Fourier Neural Operator \cite{ZL2021}, CNO \cite{BR2023}, among many others.
+
+\paragraph{\bf How can the number of training samples for PDE learning be significantly reduced?} 
+{\it Foundation models} are {\it generalist} models that are pretrained, at-scale, on laarge datasets drawn from a diverse set of data distributions. They leverage the intrinsic abilitiy of neural networks to learn {\it effective representations} from pretraining and are then successfully deployed on a variety of {\it downstream} tasks by {\it finetunning} them on a few task-specific samples. Example of such models include highly successful large language models \cite{HT2023}.
+
+\noindent The challenge of designing such foundation models for PDEs is formidable given the sheet variety of PDEs and data distributions. Authors concur that the feasibility of of designing PDE foundation models rests on the fundamental and unanswered science question of {\it why pretraining a model on a very small set of PDEs and underlying data-distributions can allow it to learn effective representations and generalize to unseen and unrelated PDEs and data-distributions via finetuning?}
+
+\noindent The Poseidon family of PDE foundation models are based on i) scalable Operator Transformer or scOT, a {\it multiscalae vision transformer} with (shifted) windowed or Swin attention \cite{ZLiu2021}, adapted for operator learning, ii) a novel all2all training strategy for efficient leveraging {\it trajectories} of solutions of time-dependent PDEs to scale up the volume of training data and iii) an open source large-scale pretraining dataset, containing a set of novel solution operators of the compressible Euler and incompressible Navier-Stokes equations of fluid dynamics.
+
+\section{\bf Approach}
+\paragraph{\bf Problem Formulation} We denote a generic time-dependent PDE as,
+\begin{equation}\label{eq:pde}
+    \begin{split}
+        &\partial_t u(x,t) + \cal L(u, \nabla_x u_x, \nabla^2_x u, \dots) = 0, \quad \forall x \in D \subset \bb R^d, t \in (0,T), \\
+        &\cal B(u) = 0, \quad \forall(x,t) \in \partial D \times (0,T), \quad u(0,x) = a(x), \quad x \in D
+    \end{split}
+\end{equation}
+Here, with a function space $\EuScript{X} \subset L^p(D;\bb R^n)$ for some $1 \leq p < \infty, u \in C([0,T];\EuScript X)$ is the solution of ((\ref{eq:pde})), $a \in \EuScript X$ the initial datum and $\cal L, \cal B$ are the underlying differential and boundary operators, respectively. Note that (\ref{eq:pde}) accomodates both PDEs with high-order time derivatives as well as  PDEs with (time-independent) coefficients and sources by including the underlying functions within the solution vector and augmenting $\cal L$ accordingly.
+
+\noindent Even {\it time-independent} PDEs can be recovered from (\ref{eq:pde}) by taking the {\it long-time limit}, i.e., $\lim_{t \to\infty} u = \overline{u}$, which will be the solution of the (generic) time-independent PDE,
+\begin{equation}
+    \cal L(\overline{u}(x), \nabla_x \overline{u}, \nabla^2_x\overline{u}, \dots) = 0, \quad \forall x \in D, \quad \cal B(\overline{u}) = 0, \quad \forall x \in \partial D.
+\end{equation}
+Solutions of the PDE (\ref{eq:pde}) are given in terms of the underlying {\it solution operator} $\EuScript S: [0,T] \times \eus X \mapsto \eus X$ such that $u(t) = \eus S(t,a)$ is the solution of \ref{eq:pde} at any time $t \in (0,T)$. Given a data distribution $\mu \in Prob(\eus X)$, the {\it underlying operator learning task (OLT)} is,
+
+\begin{quote}
+    {\bf OLT}: {\it Given any initial datum $a \sim \mu$, find an approximation $\eus S^* \approx \eus S$ to the solution operator $\eus S$ \ref{eq:pde}, in order to generate the entire solution trajectory \{$\eus S^*(t,a)\}$ for all $t\in [0,T]$.}
+\end{quote}
+It is essential to emphasize here that the learned opeator $\eus S^*$ has to generate the {\it entire solution trajectory for \ref{eq:pde}, given only the initial datum (and boundary confitions),} as this is what the underlying solution operator $\eus S$ (and numerical approximation to it) does.
+
+\paragraph{\bf Model Architecture} The backbone for the {\large P}OSEIDON foundation model is provided by scOT or {\it scalable Operator Transformer,}. scOT is a {\it hierarchical multiscale vision transformer with lead-time conditioning} that processes lead time $t$ and function space valued initial data input $a$ to appropriate the solution operator $\eus S(t,a)$ of the PDE \ref{eq:pde}.
+\bibliographystyle{plainnat}
+\bibliography{ref_poseidon}
+\end{document}
