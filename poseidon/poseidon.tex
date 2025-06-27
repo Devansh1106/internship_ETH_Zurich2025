@@ -101,9 +101,25 @@ Solutions of the PDE (\ref{eq:pde}) are given in terms of the underlying {\it so
 \begin{quote}
     {\bf OLT}: {\it Given any initial datum $a \sim \mu$, find an approximation $\eus S^* \approx \eus S$ to the solution operator $\eus S$ \ref{eq:pde}, in order to generate the entire solution trajectory \{$\eus S^*(t,a)\}$ for all $t\in [0,T]$.}
 \end{quote}
-It is essential to emphasize here that the learned opeator $\eus S^*$ has to generate the {\it entire solution trajectory for \ref{eq:pde}, given only the initial datum (and boundary confitions),} as this is what the underlying solution operator $\eus S$ (and numerical approximation to it) does.
+It is essential to emphasize here that the learned opeator $\eus S^*$ has to generate the {\it entire solution trajectory for \ref{eq:pde}, given only the initial datum (and boundary conditions),} as this is what the underlying solution operator $\eus S$ (and numerical approximation to it) does.
 
 \paragraph{\bf Model Architecture} The backbone for the {\large P}OSEIDON foundation model is provided by scOT or {\it scalable Operator Transformer,}. scOT is a {\it hierarchical multiscale vision transformer with lead-time conditioning} that processes lead time $t$ and function space valued initial data input $a$ to appropriate the solution operator $\eus S(t,a)$ of the PDE \ref{eq:pde}.
+
+\appendix
+\section{\bf Architecture of the scalable Operator Transformer (scOT)}
+\subsection{Operator Learning with scOT}
+
+
+
+
+
+
+
+
+
+
+
+
 \bibliographystyle{plainnat}
 \bibliography{ref_poseidon}
 \end{document}
