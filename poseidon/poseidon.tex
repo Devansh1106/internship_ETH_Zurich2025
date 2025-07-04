@@ -67,7 +67,7 @@
 \numberwithin{equation}{section}
 
 \begin{abstract}
-    In the paper \cite{MH2024}, the author introduces a foundation model {\large P}OSEIDON, for learning the solution operators of PDEs. It is based on a multiscale operator transformer, with time-conditioned layer norms that enable continuous-in-time evaluations. They propose a novel training strategy leveraging the semi-group property of time-dependent PDEs to allow for significant scaling-up of the training data. {\large P}OSEIDON is a pretrained model on a diverse, large scale dataset for the governing equations of fluid dynamics. The authors show that {\large P}OSEIDON exhibits excellent performance by outperforming baselines significantly, both in terms of sample efficiency and accuracy. They also the generalization ability of the model to unseen physics.
+    In the paper \cite{MH2024}, the author introduces a foundation model {\large P}OSEIDON, for learning the solution operators of PDEs. It is based on a multiscale operator transformer, with time-conditioned layer norms that enable continuous-in-time evaluations. They propose a novel training strategy leveraging the semi-group property of time-dependent PDEs to allow for significant scaling-up of the training data. {\large P}OSEIDON is a pretrained model on a diverse, large scale dataset for the governing equations of fluid dynamics. The authors show that {\large P}OSEIDON exhibits excellent performance by outperforming baselines significantly, both in terms of sample efficiency and accuracy. They also show the generalization ability of the model to unseen physics.
 \end{abstract}
 \maketitle
 \section{\bf Introduction}
@@ -134,7 +134,7 @@ Here $\alpha(t) = \alpha t + \overline{\alpha}$ and $\beta(t) = \beta t + \overl
 Finally, as in Figure \ref{fig:architecture}, the SwinV2 transformer blocks \ref{eq:swinv2} are arranged in a hierarchical, multiscale manner, within a U-Net style {\it encoder-decoder} architecture, by employing patch merging (downscaling) and patch expansion (upscaling) operator. Moreover, layers at the same scale, but within the encoder and decoder stages of scOT, respectively, are connected through {\it ConvNeXt} convolutional layers \cite{ZLiu2022}.
 
 \section{\bf Universal Approximation of POSEIDON}
-\noindent This section deals with proving that the underlying architecture of POSEIDON is universal by showing that the building blocks of POSEIDON can be proved to be equivalent to ANOs \cite{SL2024}, and then we utilize the universality of ANOs to show that POSEIDON is indeed a universal approximator.
+\noindent This section deals with proving that the underlying architecture of POSEIDON is universal by showing that the building blocks of POSEIDON can proved to be equivalent to ANOs \cite{SL2024}, and then we utilize the universality of ANOs to show that POSEIDON is indeed a universal approximator.
 
 \begin{lem}[{\bf ConvNeXt is an ANO}] \label{lem:convnext}
     ConvNeXt blocks are given by
@@ -149,10 +149,11 @@ Finally, as in Figure \ref{fig:architecture}, the SwinV2 transformer blocks \ref
 \end{lem}
 \begin{proof}
     The convolution given by DwConv can be represented as an integral and this will provide nonlocality to the network. Let $\cal K_l(v)$ be the convolution operator given by
-    $$\cal (K_lv)(x) = \int_{D} K_l(x,y) v(y) dy.$$
+    $$(\cal K_lv)(x) = \int_{D} K_l(x,y) v(y) dy.$$
     The particular choice $K_l(x,y) \equiv |D|^{-1} I_{7\times 7}$ with $I_{7\times 7}$ be the identity matrix, it recovers the form of average as in ANO \cite{SL2024}. 
-    \paragraph{\bf Layer Norm}\label{par:LN} If we choose $\alpha(t)$ to be vector of $1$'s and $\beta(t)$ to be zero vector in LN (time conditioned layer norm as in \ref{eq:LN}) then LN changes the first and second moments of the entries of the vector ${\bf v}(x)$. Overall output still captures the nonlocality needed for the ANO because of the integral and just changes the numerical values of the entries of the vector. Hence, it is still nonlocal.
-    \paragraph{\bf Residual connection} \label{par:resano} Applying residual mathematically means shifting the output vector of GeLU. It is required to take care of the issue of vanishing gradients while training. In particular the bias vector in the hidden layer of the ANO will absorbs the shift provided by residual connection and it will not affect the ANO. Hidden layer of ANO with residual connection is given by
+    \paragraph{\bf Layer Norm}\label{par:LN} If we choose $\alpha(t)$ to be vector of $1$'s and $\beta(t)$ to be zero vector in LN (time conditioned layer norm as in \ref{eq:LN}) then LN only changes the first and second moments of the entries of the vector ${\bf v}(x)$ and the affine transformation becomes identity transform due the above choices. Overall output still captures the nonlocality needed for the ANO because of the integral and just changes the numerical values of the entries of the vector. Hence, it is still nonlocal and appyling LN does not affect the nonlocailty.
+    $$ LN_{\alpha(t),\beta(t)}({\bf v})(x) = \alpha(t) \odot \frac{{\bf v}(x) - \mu_{{\bf v}}(x)}{\sigma_{\bf v}(x)} + \beta(t) = \frac{{\bf v}(x) - \mu_{{\bf v}}(x)}{\sigma_{\bf v}(x)} $$
+    \paragraph{\bf Residual connection} \label{par:resano} Applying residual connection mathematically means shifting the output vector of GeLU. It is required to take care of the issue of vanishing gradients while training. In particular the bias vector in the hidden layer of the ANO will absorbs the shift provided by residual connection and it will not affect the ANO. Hidden layer of ANO with residual connection is given by
     $$ v_l(x) = \underbrace{\sigma\left(Wv_{l-1}(x) + b + \fint v_{l-1}(y)dy\right)}_{\text{Original ANO}} + \underbrace{v_{l-1}(x)}_{\text{Residual connection}} $$
     Hence $v_{l-1}(x) = v_{l-2}(x) + v'(x)$ where $v'(x) = \sigma\left(Wv_{l-2}(x) + b + \fint v_{l-2}(y)dy\right) $ be the output vector of original ANO without residual connection, then
     \begin{equation*}
@@ -164,16 +165,16 @@ Finally, as in Figure \ref{fig:architecture}, the SwinV2 transformer blocks \ref
     \end{equation*}
     where $b' = b + \fint v'(y)dy$ be a new bias vector. Hence the core structure of ANO is still preserved even with the shifted input and the core structure is proved to be universal in \cite{SL2024} which makes this {\bf {\it ResANO} (ANO with a residual connection) a universal approximator}
 
-    \noindent In particular, the ConvNeXt block is a type of {\it ResANO} as shown above that it has ANO type nonlocailty and a residual connection. Hence, it is universal approximator.
+    \noindent In particular, the ConvNeXt block is a type of {\it ResANO} as shown above that it has ANO type nonlocailty and a residual connection. Hence, it is an universal approximator.
 \end{proof}
-\paragraph{\bf Setup} \label{par:setup} Now we show that the windowed multi-head self attention is also an ANO. Notice that we have a choice for the query, key and value matrices, $Q_l = XW^Q$, $K = XW^K$ and $V = XW^V$ respectively, where $X \in \bb R^{m \times C}$, $m$ is the total number of patches and $X$ is the input sequence vector. Here $W^*$ are the trainable matrices in $\bb R^{C\times C}$. For the proof of the lemma below, we can choose $m = 1$ and $W^V = X^\dag$ (pseudo inverse of $X$) then the above quantities will be simplified: $X \in \bb R^{1\times C}$, $Q_l, K_l$ and $V_l$ will be in $\bb R^{1\times C}$. With these choices, we have the following lemma.
+\paragraph{\bf Setup} \label{par:setup} Now we show that the windowed multi-head self attention is equivalent to averaging. Notice that we can choose the query, key and value matrices, $Q_l = XW^Q$, $K = XW^K$ and $V = XW^V$ respectively, where $X \in \bb R^{m \times C}$, $m$ is the total number of patches and $X$ is the input sequence vector. Here $W^*$ are the trainable matrices in $\bb R^{C\times C}$. For the proof of the lemma below, we set $m = 1$ and $W^V = X^\dag$ (pseudo inverse of $X$) then the above quantities will be simplified: $X \in \bb R^{1\times C}$, $Q_l, K_l$ and $V_l$ will be in $\bb R^{1\times C}$. With these choices, we have the following lemma.
 \begin{lem}[{\bf W-MSA is equivalent to average}]\label{lem:wmsa}
-    Windowed multi-head self attention as given by \ref{eq:wmsa} is an ANO with $Q_l, K_l$ and $V_l$ as given in the above paragraph and the following choices: take ${\bf W}^h_l = \alpha^{-1}\bb I$ where $\bb I$ is identity matrix and $\alpha = XX^\dag$, H = 1 (number of attention head, without loss of generality), $D^l_{q_x} = D$ and ${\bf B}_l(x,y)$ to be a zero vector. Then we have a simplified version as
+    Windowed multi-head self attention as given by \ref{eq:wmsa} is equivalent to averaging with $Q_l, K_l$ and $V_l$ as given in the above paragraph and the following choices: take ${\bf W}^h_l = \alpha^{-1}\bb I$ where $\bb I$ is identity matrix and $\alpha = XX^\dag$, H = 1 (number of attention head, without loss of generality), $D^l_{q_x} = D~~ \forall l$ and ${\bf B}_l(x,y)$ to be a zero vector. Then we have a simplified version of W-MSA as
     $$W-MSA(v)(x) = \alpha^{-1}\int_{D} \frac{e^{cos({\bf Q}_l {\bf v}(x),{\bf K}_l {\bf v}(y))}}{\int_{D} e^{cos({\bf Q}_l {\bf v}(z),{\bf K}_l {\bf v}(y))}dz} {\bf V}_l {\bf v}(y) dy.$$
     This is equivalent to the nonlocailty of ANO (averaging over the domain).
 \end{lem}
 \begin{proof}
-    Since $Q_l$ and $K_l$ will be in $\bb R^{1\times C}$, the product of these matrices with $v(y) \in \bb R^{C\times 1} ~~\forall y \in D$ is a scalar. Also, $\cos(x,y) = \frac{x^\top y}{||x|| ||y||}$ for vectors $x,y$ and for scalar it will becomes $1$. With the choice of $W^V = X^\dag$, we have $V = XX^\dag = \alpha$ (see above paragraph) then
+    Since $Q_l$ and $K_l$ aew in $\bb R^{1\times C}$, the product of these matrices with $v(y) \in \bb R^{C\times 1} ~~\forall y \in D$ is a scalar. Also, $\cos(x,y) = \frac{x^\top y}{||x|| ||y||}$ for vectors $x,y$ and for scalar it will becomes $1$. With the choice of $W^V = X^\dag$, we have $V = XX^\dag = \alpha$ (let) (see above paragraph) then
     \begin{equation*}
         \begin{aligned}
             W-MSA(v)(x) &= \alpha^{-1}\int_{D} \frac{e^{cos({\bf Q}_l {\bf v}(x),{\bf K}_l {\bf v}(y))}}{\int_{D} e^{cos({\bf Q}_l {\bf v}(z),{\bf K}_l {\bf v}(y))}dz} {\bf V}_l {\bf v}(y) dy \\
@@ -185,24 +186,24 @@ Finally, as in Figure \ref{fig:architecture}, the SwinV2 transformer blocks \ref
 \begin{thm}[{\bf Universal Approximation for SwinV2 transformer}] \label{thm:swinv2}
     The hidden layer of SwinV2, $SW_l : C(D;\bb R^C) \to C(D;\bb R^C)$,
     $$ v_l = SW_l(v_{l-1}) = v_{l-1} + LN_{\alpha_2^l, \beta_2^l} \left(\overline{W} \sigma \left( Wv_{l-1} + WLN_{\alpha_1^l,\beta_1^l}(W-MSA(v_{l-1})) + \hat{B}\right)\right)$$
-    is equivalent to the hidden layer of ResANO, which is universal as per the arguments given in paragraph \ref{par:resano}, for the choice: $\overline{W}, W = \bb I$ (identity matrix) and $\hat{B}$ to be a zero vector. Hence by Theorem 2.1 of \cite{SL2024}, it is an universal approximator.
+    is equivalent to the hidden layer of ResANO for the choice: $\overline{W}, W = \bb I$ (identity matrix) and $\hat{B}$ to be a zero vector. Since, $ResANO$ is universal as per the arguments given in paragraph \ref{par:resano}, we have SwinV2 as universal appropriator.
 \end{thm}
 \begin{proof}
-    With the above choices, the simplied form is given by
+    With the above choices, the simplified form of hidden layer is given by
     $$ v_l = SW_l(v_{l-1}) = v_{l-1} + LN_{\alpha_2^l, \beta_2^l} \left(\sigma \left(v_{l-1} + LN_{\alpha_1^l,\beta_1^l}(W-MSA(v_{l-1}))\right)\right)$$
     By Lemma \ref{lem:wmsa}, $W-MSA$ is equivalent to an average over the domain $D$ and then applying $LN_{\alpha_1^l, \beta_1^l}$ will not affect the nonlocality as per the arguments given in paragraph \ref{par:LN}. Now we have
     $$ \sigma\left(\bb Iv_{l-1} + LN_{\alpha_1^l, \beta_1^l}\left( \frac{1}{|D|} \int_D v_{l-1}(y)dy\right) \right)$$ and this is exactly the hidden layer of ANO \cite{SL2024} with $W = \bb I$ since $LN$ does not affect the nonlocality. Similarly, applying $LN_{\alpha_2^l, \beta_2^l}$ will also not affect the nonlocality (see paragraph \ref{par:LN}).
-    Then applying residual connection $(\cdot + v_{l-1}(x))$ will result in a {\it ResANO} which is an universal approximator as paragraph \ref{par:resano} shows.
+    Then applying residual connection $(\cdot + v_{l-1})$ will result in a {\it ResANO} (ANO hidden layer with residual connection) which is an universal approximator as paragraph \ref{par:resano} shows.
     
-    \noindent This completes the proof that SwinV2 transformer block is an ANO (with lifting and projection operators are taken as identity operator).
+    \noindent This completes the proof that SwinV2 transformer block is an universal appropriator.
 \end{proof}
 \begin{thm}[Universal Approximation for POSEIDON]
     With the given setup (see paragraph \ref{par:setup}), the POSEIDON architecture is an universal approximator since it is a collection of SwinV2 transformer and ConvNeXt blocks which themselves are universal appropriators by Theorem \ref{thm:swinv2} and Lemma \ref{lem:convnext} respectively.
 \end{thm}
 \begin{proof}
-    As shown in the figure \ref{fig:architecture}, the POSEIDON model is a collection of SwinV2 transformer blocks, ConvNeXt blocks along with some operations such as patch merging, patch expansion, embedding and recovery. These operations are used for transforming the outputs of either the SwinV2 transformer block (patch merging and expansion) or of the whole model (recovery). They change the dimensions of the output using {\it linear} transformations and can be seen as lifting/projection opereators. These operations have practical important but they do not seem have a role in universal approximation property for the model.
+    As shown in the figure \ref{fig:architecture}, the POSEIDON model is a collection of SwinV2 transformer blocks, ConvNeXt blocks along with some operations such as patch merging, patch expansion, embedding and recovery. These operations are used for transforming the outputs of either the SwinV2 transformer block (patch merging and expansion) or of the whole model (recovery). They change the dimensions of the output using {\it linear} transformations and can be seen as lifting/projection opereators. These operations have practical implementation importance but they do not seem have a role in universal approximation property for the model.
 
-    \noindent Since each block of the model can be reduced to ANO and hence a universal approximator by Theorem 2.1 of \cite{SL2024}, the POSEIDON model is also a universal approximator.
+    \noindent Since each block of the model can be reduced to ANO (or $ResANO$), hence a universal approximator by Theorem 2.1 of \cite{SL2024}, the POSEIDON model is also a universal approximator.
 \end{proof}
 
 
