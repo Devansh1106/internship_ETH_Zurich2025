@@ -1,0 +1,105 @@
+%% Credits of this ams template are with respective people. @Devansh1106 neither own this template nor the credits. 
+\documentclass[reqno,10pt]{amsart}
+\usepackage[a4paper, margin=1.25in]{geometry} % Change 1in to desired size
+\usepackage[numbers]{natbib}
+\setlength{\bibsep}{8pt}
+\usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{tikz-cd}
+\usepackage{subcaption}
+% \captionsetup[subfigure]{labelformat=parens,labelfont=normalfont}
+% \renewcommand{\thesubfigure}{\alph{subfigure}}
+\usepackage{hyperref}
+\usepackage{lineno}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{esint}
+\usepackage{fancyhdr}
+
+\DeclareMathAlphabet{\EuScript}{U}{eus}{m}{n}
+
+\setlength{\parskip}{0.5\baselineskip}%
+\setlength{\parindent}{20pt}
+\theoremstyle{plain}
+
+\pagestyle{fancy}
+\fancyhf{} % Clear default headers/footers
+\setlength{\headheight}{10.0pt}
+% Even pages: Paper title
+\fancyhead[LE]{\footnotesize\textit{Universality of POSEIDON in settings of ANOs}}
+
+% Odd pages: Author name
+\fancyhead[RO]{\footnotesize\textit{Devansh Tripathi}}
+
+\newtheorem*{thm*}{Theorem}
+%% this allows for theorems which are not automatically numbered
+\newcommand{\sinc}{\text{sinc}}
+\renewcommand{\qedsymbol}{$\blacksquare$}
+\newtheorem{thm}{Theorem}
+\newtheorem{cor}{Corollary}
+\newtheorem{lem}{Lemma}
+\newtheorem*{lem*}{Lemma}
+\newtheorem{prop}{Proposition}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{eg}{Example}
+\newtheorem{rem}{Remark}
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cal}[1]{\mathcal{#1}}
+\newcommand{\eus}[1]{\EuScript{#1}}
+
+\hypersetup{
+    colorlinks=false,
+    linkcolor=blue,    % Internal links (sections, equations)
+    citecolor=red,     % Citation links
+    urlcolor=magenta   % URLs (DOIs, websites)
+}
+%% The above lines are for formatting.  In general, you will not want to change these.
+
+\title{Universality of scOT with respect to ANO}
+\author{Devansh Tripathi$^1$ \\ ETH Z\lowercase{\"urich}}
+\thanks{$^1$Seminar für Angewandte Mathematik, HG E 62.2, Rämistrasse 101, 8092 Zürich, Switzerland \\ \href{mailto:devansh.tripathi@sam.math.ethz.ch}{\texttt{devansh.tripathi@sam.math.ethz.ch}}}
+
+\begin{document}
+\numberwithin{equation}{section}
+
+\maketitle
+In this draft, I will highlight the differences between the two proofs for universality of scOT. First of all, the proof provided in the ``scOT\_universality'' draft does not aim to convert scOT to an ANO rather it directly shows the existence of a scOT with desired accuracy while I make choices such that SwinV2 gets reduce to ANO.
+
+\section{Proof in ``scOT\_universality'' draft}
+
+In the draft, window is taken to be whole domain. $Q, K$ matrices are taken to be $0$. $W^h$ is set to be $\bb I_{C\times C}$, $V^h \in \bb R^{C\times C}$ with $V_{ij} = \delta_{ih}\delta_{jh}$ with $B$ as neural network approximating a function
+\begin{equation} \label{eq:B}
+    \overline{B}^h(x,y) = \ln(2+\eta_h(x-y)) -1,
+\end{equation}
+where $\eta_h$ is an enumeration of Fourier basis together with $0$ function. This choice of $B$ to approximates eq \ref{eq:B} is taken to simplify the expression with exponent. This will result in simplification of $W-MSA$ as average of $v(x)$ over the whole domain plus convolution of $\bar{a}$ with the Fourier basis vector as an extra term.
+$$ W-MSA(v)(x) = \int_D v(y)dy + \frac{1}{2} \int_D(\eta_1(x-y), \dots, \eta_H(x-y))^\top \bar{a}(y) dy$$
+where $\eta_h$ are the enumeration of the real Fourier basis together with $0$ function and $\bar{a}$ is the average of the input function $a \in C(D;\bb R^n)$. The aim is to prove
+$$ \sup_{u \in K}\|\cal S(u) - \cal S^*(u)\|_{C^{s'}} \leq \epsilon$$
+where $\cal S: C^s(\overline{D};\bb R^n) \to C^{s'}(\overline{D};\bb R^n)$ and $\cal S^{*} : K \to C^{s'}(\overline{D};\bb R^n)$ for $K \subset C^s(\overline{D};\bb R^n)$ be a compact subset.
+
+Now, since $\cal S$ is a continuous operator, there exists an MLP $\Psi_h$ for all $h$, see \cite{SL2024}, mapping Fourier coefficients of $\bar{a}(\cdot+x)$ to an approximation to those of $\cal S(P_N(\bar{a}))$ where $P_N$ is the projection operator on $L^2_N$.
+$$ \Psi_h\left(\int_D \eta_h (y)\bar{a}(y+x) dy\right) = \int_D \eta_h(y)\cal S(P_N\bar{a}(\cdot-x))(y) dy - (v_1'(x))_h.$$
+Then $\cal S^*$ is constructed as 
+$$ S^*(a)(x) = P_N\cal S(P_N\overline{a})(x).$$
+Then for large enough $N$, author says error will be smaller than $\epsilon$.
+
+\section{Proof with ANO (my proof)}
+
+$v$ is the output of the embedding operator and $v(x) \in \bb R^C$ which is the input for SwinV2 block. First I have tried to simplify windowed multi head self attention operator with the following choices: $H=1$ (which will convert multi head attention to single head), $C$ is the latent space dimension and take $m=1$ (so window is just the whole domain).
+
+While, I take a bit different choices to simplify the exponent expression: since $X,Q,K,V \in \bb R^{m\times C}$, taking $m=1$ (window is just whole domain) simplifes them as $X,Q,K,V \in \bb R^{1\times C}$ (row vectors). Also, $V = XW^V$ (linear projection of input sequence of tokens $X$), I make a choice of $W^V = X^\dagger$ (pseudo-inverse) and $Q,K$ which are defined as $Q=XW^Q, K = XW^K$ can be anything. Hence, when we multiply $v(x) \in \bb R^C$ with $Q \in \bb R^{1\times C}$ we get a scalar and same for $Kv(x) \in \bb R$. I take positional bias $B$ as $0$ vector instead of eq \ref{eq:B} and $W^h$ as $(XX^\dagger)^{-1} \text{Id}$ where $XX^\dagger \in \bb R$ (let $XX^\dagger = \alpha \neq 0$) (since $X$ is non-zero vector, $\alpha$ will automatically be non-zero).
+
+With these choices, $\cos(Qv(x),Kv(x))$ becomes $1$ (since this is $\cos$ of angle between the scalars or say vectors of length $1$). These choices simplify the exponenent expression as average of $v(x)$ over the whole domain.
+$$ W-MSA(v)(x) = \frac{1}{|D|} \int_D v(y) dy.$$
+Then I show that SwinV2 block is an ANO with a residual connection (I called it ResANO). This ResANO has the core structure of ANO (nonlinearity and average as nonlocality) hence it is also universal.
+\subsection{Proof for scOT}
+Since scOT is a composition of SwinV2 blocks, ConvNeXt block with some operations of merging, expansion etc. (all these operations are linear transformations that changes the dimensions) and SwinV2 is an ANO and ConvNeXt is an ANO (shown in ``poseidon.pdf''), scOT is universal (or should say can be reduced to ANO).
+
+\bibliographystyle{plainnat}
+\bibliography{scOT_universality_withANO}
+
+\end{document}
