@@ -229,6 +229,46 @@ We start by describing these discretizations for the time-independent PDE \ref{e
 
 \section{\bf Details of GAOT Architecture}
 \subsection{\bf Choice of Latent Grid} \label{appendix:lgrid}
+Given the input point cloud, denoted by $D_\Delta$ above, the first step in our design is to select a {\it latent} point cloud, consisting of points at which our spatial tokens are going to be specified. Here, we explore three distinct ways of choosing spatial tokens, each offering different trade-offs in terms of computational cost, geometric coverage, and ease of patching for efficient attention.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{latent_grid.png}
+    \caption{Taken from \cite{SW2025}}
+    \label{fig:latent_grid}
+\end{figure}
+\paragraph{\bf Strategy Stencil Grid (Strategy I)} In this approach, we overlay a structured grid of tokens across $D_\Delta$. For 2D domains, this may be a uniform mesh of cells; for 3D domains, an analogous dense grid can be used. 
+\begin{itemize}\setlength{\itemsep}{0.8em}
+    \item {\it Advantages.} This grid can be quite fine if needed, ensuring adequate coverage. Moreover, we can group tokens into patches before feeding them into the transformer processor, effectively reducing the token count (number of latent points). Authors empirically show that patch size has a negligible effect on performance; hence large patch sizes can be used to speed up training.
+    \item {\it Limitations.} The main drawback is that token count grows exponentially with the dimension; for 3D, the number of grid cells can be prohibitively large. Also, if the input data lie on a low-dimensional manifold embedded in $D_\Delta$, some tokens may remain underutilized. Nonetheless, we find in practice that even empty tokens (those with no neighboring input points) can still contribute to better global encoding and improved convergence.
+\end{itemize}
+\paragraph{\bf Downsampled Unstructured Points (Strategy II)} This method directly downsamples the input unstructured point cloud and treat each sampled point as a token, RIGNO \cite{SM2025} is a typical example based on this strategy. If the data are denser in some regions, naturally more tokens appear there.
+\begin{itemize} \setlength{\itemsep}{0.8em}
+    \item {\it Advantages.} This method avoids the pitfalls of having many tokens in empty regions, as might happen if the data indeed lie on a lower-dimensional manifold. By adaptive sampling, it can allocate tokens more efficiently.
+    \item {\it Limitations.} Unstructured tokens are harder to patch effectively for attention mechanisms in the processor. In the experiments, we observed that this strategy can be less effective than Strategy I even when the domain is indeed partially low-dimensional.
+\end{itemize}
+\paragraph{\bf Projected Low-Dimensional Grid (Strategy III)}
+One can project the 3D domain (or higher-dimensional space) into a lower-dimensional representation and then place a structured stencil grid in the reduced coordinates \- for example, using triplane embeddings in 3D \cite{QC2025}.
+\begin{itemize} \setlength{\itemsep}{0.8em}
+    \item {\it Advantages.} Such a projection drastically reduces the token count in 3D, and avoids the purely {\it low-dimensional manifold} disadvantage of Strategy I. Moreover, one can still apply patching on the structured plane.
+    \item {\it Limitations.} Decomposing $d$-dimensional coordinates into disjoint projections (e.g. splitting $x,y,z$ axes) can introduce additional approximation errors. Some local neighborhood information is inevitably lost during projection. This trade-off can degrade the final accuracy compared to direct methods (Strategy I or II).
+\end{itemize}
+\subsection{\bf Multiscale Attentional Graph Neural Operator}
+Both the encoder and decoder in GAOT employ the proposed Multiscale Attentional Graph Neural Operator (MAGNO). MAGNO is designed to augment classical Graph Neural Operators (GNOs) by incorporating multiscale information processing and attention-based weighting. A traditional GNO construct a local graph for each query point (or token) by collecting all neighboring nodes within a specified radius, approximating a (kernel) integral operator over this neighborhood. Below, we first recap the standard single-scale GNO scheme, then extend it to a multiscale version, and finally incorporate attention mechanisms for adaptive weighting.
+
+\paragraph{\bf Recap of Single-Scale Local Integration (GNO Basis)} For any point $y$ in the latent space $\cal D$ (in the encoder) or a query point $x$ in the original domain $D_\Delta$ (in the decoder), a GNO layer aims to aggregate information from its neighborhood via a kernel integral. For the encoder, given input data $a(x_j)$ on the original point cloud $D_\Delta = \{x_j\}$, the GNO transforms it into latent features $w_e(y)$. The fundamental GNO computation is given by eq \ref{eq:gno_single} from main text:
+\begin{equation}
+    \tilde{w}_e(y) = \sum_{k=1}^{n_y} \alpha_k K(y,x_k,a(x_k)) \varphi(a(x_k)),
+\end{equation}
+where the sum is over $n_y$ points $x_k$ in the original point cloud $D_\Delta$ such that $|y-x_k| \leq r$. $K$ and $\varphi$ are MLPs, $a(x_k)$ is the input features at point $x_k$, and $\alpha_k$ are given quadrature weights. This form can be seen a discrete approximation of an integal operator:
+\begin{equation}
+\int_{B_r(y) \cap D_\Delta} K(y,x',a(x')) \varphi(a(x')) dx'
+\end{equation}
+where $B_r(y)$ is a ball of radius $r$ centered at $y$.
+\paragraph{\bf Multiscale Neighborhood Construction} The single-scale approach, while effective for capturing local interactions within a fixed radius $r$, may not efficiently perceive multiscale information crucial for many PDE problems. To address this, we introduce multiple radii. As described in the main text, we choose $r_m = s_mr_0$, where $r_0$ is a base radius and $s_m$ are scale factors $(m = 1, \dots, \bar{m})$. For each scale $m$, we gather points $x_k$ from the original point cloud $D_\Delta$ within the ball $B_{r_m}(y)$ centered at $y \in \cal D$ (for the encoder) with radius $r_m$. A GNO-like local integration is then performed for each scale $m$, as shown by eq \ref{eq:agno} from the main text:
+\begin{equation}
+    \tilde{w}_e^m (y) = \sum_{k=1}^{n_y^m} \alpha_k^m K^m (y,x_k,a(x_k)) \varphi(a(x_k)),
+\end{equation}
+Here, 
 
 
 \subsection{\bf Geometry Embeddings} \label{appendix:gembedd}
