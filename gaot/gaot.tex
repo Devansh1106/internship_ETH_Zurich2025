@@ -125,24 +125,32 @@ with MLPs $K$ and $\varphi$ and the sum above taken over all the $n_y$ points $x
     \tilde{w}_e^m (y) = \sum_{k=1}^{n_y^m} \alpha_k^m K^m (y,x_k,a(x_k)) \varphi(a(x_k)),
 \end{equation}
 for any fixed scale $m$ and with MLPs $K^m. \varphi$. The above sum is taken over all the $n^m_y$ points $x_k \in D_\Delta$ such that $|y-x_k| \leq r_m$. To choose the quadrature weights $\alpha_k^m$, we propose an {\it attention based} choice,
-\begin{equation}
+\begin{equation}\label{eq:atten_weights}
     \alpha_k^m = \frac{\exp(e^m_k)}{\sum_{k'=1}^{n_y^m} \exp(e^m_{k'})}, \qquad e^m_k = \frac{\langle {\bf W}_q^m y,{\bf W}_\kappa^m x_k \rangle}{\sqrt{\overline{d}}},
 \end{equation}
 with ${\bf W}_q^m,{\bf W}_\kappa^m \in \bb R^{\overline{d} \times m}$ are query and key matrices respectively, completing the description of the {\it attentional graph neural operator} (AGNO) at each scale $m$.
 
-\paragraph{\bf Geometry Embeddings}
-The only geometric information in the afore-described encoder is provided by the coordinates of the underlying points. The authors argue that this alone does not convey the rich geometric information about the domain that can affect the solution of the underlying PDE \ref{eq:tpde}. In the literature, the geometry information is usually provided either by appending them as node and edge features on the underlying graphs or by encoding a signed distance function. The authors propose to use a novel {\it geometry embeddings} to encode this information. To this end as described in appendix \ref{appendix:gembedd}, we can rely on {\it local statistical embeddings} for each point $y \in \cal D$ as all the neighbouring points $x_k$ in $D_\Delta$ with $|y-x_k| \leq r_m$ have already been computed in the AGNO encoder. From these points, we can readily compute statistical descriptors such as i) number of neighbors $x_k \in D_\Delta$, in the ball $B_{r_m}(y)$, ii) the {\it average distance} $D_{avg} = \frac{1}{n_y^m} \sum_{k=1}^{n_y^m} |y-x_k|,$ iii) the variance of this distance $D_{var}$, with respect to the average $D_{avg}$, iv) the {\it centroid offset vector} $\Delta_y = \frac{1}{n_y^m} \sum_{k=1}^{n_x^y}(x_k-y)$ and v) a few principal component (PCA) features of the covariance matrix of $y-x_k$ to calculate the {\it local shape anisotropy}. These statistical descriptors, for each scale $m$ and each point $y \in \cal D$ are then concatenated into a single vector $z_y$, normalised across components to yield zero mean and unit variance and fed into an MLP to provide the embedding $g^m(y)$. Alternatively, geometry embedding using emphPointNet models \cite{RC2017} can also be considered.
+\paragraph{\bf Geometry Embeddings}\label{par:geom_embeddings}
+The only geometric information in the afore-described encoder is provided by the coordinates of the underlying points. The authors argue that this alone does not convey the rich geometric information about the domain that can affect the solution of the underlying PDE \ref{eq:tpde}. In the literature, the geometry information is usually provided either by appending them as node and edge features on the underlying graphs or by encoding a signed distance function. The authors propose to use a novel {\it geometry embeddings} to encode this information. To this end as described in appendix \ref{appendix:gembedd}, we can rely on {\it local statistical embeddings} for each point $y \in \cal D$ as all the neighbouring points $x_k$ in $D_\Delta$ with $|y-x_k| \leq r_m$ have already been computed in the AGNO encoder. From these points, we can readily compute statistical descriptors such as 
+\begin{enumerate}\setlength{\itemsep}{0.8em}
+    \item  number of neighbors $x_k \in D_\Delta$, in the ball $B_{r_m}(y)$
+    \item the {\it average distance} $D_{avg} = \frac{1}{n_y^m} \sum_{k=1}^{n_y^m} |y-x_k|$
+    \item the variance of this distance $D_{var}$, with respect to the average $D_{avg}$
+    \item the {\it centroid offset vector} $\Delta_y = \frac{1}{n_y^m} \sum_{k=1}^{n_x^y}(x_k-y)$ and
+    \item a few principal component (PCA) features of the covariance matrix of $y-x_k$ to calculate the {\it local shape anisotropy}. More about this in appendix \ref{appendix:gembedd}.
+\end{enumerate}
+These statistical descriptors, for each scale $m$ and each point $y \in \cal D$ are then concatenated into a single vector $z_y$, normalised across components to yield zero mean and unit variance and fed into an MLP to provide the embedding $g^m(y)$. Alternatively, geometry embedding using emphPointNet models \cite{RC2017} can also be considered.
 
 \paragraph{\bf MAGNO} 
 As shown in figure \ref{fig:gaot_arch}, the scale-dependent AGNO $\tilde{w}^m_e$ (\ref{eq:agno}) and the geometry embeddings $g^m$, at each scale $m$, can be concatenated together and passed through another MLP to yield a scale-specific latent features functions $\hat{w}^m(y)$. Next, we need to integrate these features across all $m$ scales. Instead of naively summing these scales contributions, we observe that different scales might contribute differently for every latent token to the encoding. TO ascertain this relative contribution, we introduce a (small) MLP $\psi_m$ and weigh the relative contribution with a {\it softmax} and combine them into the {\it multiscale attentional graph neural operator} or MAGNO encoder by setting,
-\begin{equation}\label{eq:attenweights}
+\begin{equation}\label{eq:atten_fusion}
     w_e(y) = \sum_{m=1}^{\bar{m}} \beta_m(y) \hat{w}^m(y), \qquad \forall y \in \cal D, \qquad \beta_m(y) = \frac{\exp(\psi_m(y))}{\sum_{m'=1}^{M}\exp(\psi_{m'}(y))}
 \end{equation}
 
 \paragraph{\bf Transformer Processor}
 The encoder provides a set of {\it geometry aware tokens} $w_e(y_l)$, for all points $y_l \in \cal D$, with $1 \leq l \leq L$, in the latent point cloud. These tokens are further transformed by a processor, a suitable transformer based processor. Details of the processor architecture can be found in \ref{appendix:processor} while the choices are summarized here. If the latent points $\{y_l\}$ lie on a regular grid (either through a structured stencil or a projected low-dimensional one), we use a patch-based {\it vision transformer} or ViT \cite{AD2021} for computational efficiency. The equispaced latent points are combined into patches and the tokens in each patch are flattened into a single token embeddings which serves as the input for a multi-head attention block, followed by a feed forward block. RMS normalisation is applied to the tokens before processing. Either sinusoidal absolute position embeddings or rotary relative position embeddings are used to encode token positions. If the latent points $y_l$ are randomly downsampled from the original point cloud, there is no obvious way to patch them together. Hence, a standard transformer \cite{AV2017}, but with RMS normalisation, can be used. Additionally, we employ multiple skip connections across transformer blocks. The transformer processor transforms the token $w_e(y_l)$ into processed tokens, that we denote by $w_p(y_l)$, for all $ 1 \leq l \leq L$.
 
-\paragraph{\bf Decoder} Given any query point $x \in D$ in the original domain, the task of the decoder in GAOT is to provide $w(x)$, which approximates the solution $u$ of the PDE \ref{eq:pde} at that point. To this end, we simply employ the MAGNO architecture in reverse. By choosing a base radius $\hat{r}_0$ and scale factors $\hat{s}_m$, a set of increasing radii $\hat{r}_m = \hat{s}_m \hat{r}_0$ are selected to define a set of increasing balls $B_{\hat{r}_m}(x)$ around the query point $x$ (see Fig.\ref{fig:gaot_arch}). A corresponding AGNO model is defined by replacing $y \rightarrow x$, $x_k \rightarrow y_\ell$ and $a \rightarrow w_p$ in \ref{eq:agno}, with corresponding attentional weights computed via \ref{eq:attenweights}. In parallel, geometry embeddings over each ball $B_{\hat{r}_m}(x)$ are computed to provide statistical information about how the latent points $y_\ell$ are distributed in the neighborhood of the query point $x$. These AGNO features and geometry embeddings are concatenated and passed through an MLP to provide $w(x)$, which has the desired dimensions of the solution $u$ of the PDE \ref{eq:pde}. We denote the GAOT model as $S_\theta$ with the output $w = S_\theta(a)$ for the inputs $a$ to the PDE \ref{eq:pde}. It is trained to minimize the mismatch with the underlying operator $S$, i.e., the parameters $\theta$ are determined to minimize a loss $\mathcal{L}(S(a), S_\theta(a))$ over all input samples $a_i$, with $\mathcal{L}$ being either the absolute or mean-square error.
+\paragraph{\bf Decoder} Given any query point $x \in D$ in the original domain, the task of the decoder in GAOT is to provide $w(x)$, which approximates the solution $u$ of the PDE \ref{eq:pde} at that point. To this end, we simply employ the MAGNO architecture in reverse. By choosing a base radius $\hat{r}_0$ and scale factors $\hat{s}_m$, a set of increasing radii $\hat{r}_m = \hat{s}_m \hat{r}_0$ are selected to define a set of increasing balls $B_{\hat{r}_m}(x)$ around the query point $x$ (see Fig.\ref{fig:gaot_arch}). A corresponding AGNO model is defined by replacing $y \rightarrow x$, $x_k \rightarrow y_\ell$ and $a \rightarrow w_p$ in \ref{eq:agno}, with corresponding attentional weights computed via \ref{eq:atten_weights}. In parallel, geometry embeddings over each ball $B_{\hat{r}_m}(x)$ are computed to provide statistical information about how the latent points $y_\ell$ are distributed in the neighborhood of the query point $x$. These AGNO features and geometry embeddings are concatenated and passed through an MLP to provide $w(x)$, which has the desired dimensions of the solution $u$ of the PDE \ref{eq:pde}. We denote the GAOT model as $S_\theta$ with the output $w = S_\theta(a)$ for the inputs $a$ to the PDE \ref{eq:pde}. It is trained to minimize the mismatch with the underlying operator $S$, i.e., the parameters $\theta$ are determined to minimize a loss $\mathcal{L}(S(a), S_\theta(a))$ over all input samples $a_i$, with $\mathcal{L}$ being either the absolute or mean-square error.
 
 \paragraph{\bf Extension to time-dependent problems} 
 To learn the solution operator $\cal S_t$ of time-dependent PDE, we observe that the $\cal S_t$ can be used to update the solution forward in time, given that the solution at any time point $ u(t)$ by applying $u(t+\tau)=\cal S_\tau(u(t))$. Thus, for any time $t$, given the augmented input $a(t) = (c,u(t))$, with $c$ being the coefficient in the PDE \ref{eq:tpde}, we need GAOT to output $u(t+\tau)$, for any $\tau \geq 0$. For this, we retain the architecture of GAOT, as described for the time-independent case above, and simply add the current time $t$ and the {\it lead-time} $\tau$ as further inputs to the model. More precisely, the time-dependent version of GAOT is of the form $\hat{S}_\theta(x,t,\tau,a(t))$, where $a(t)$ takes values at points sampled in $D$. Following \cite{SM2025}, the map $\hat{\cal S}_\theta$ can be used to update an approximate solution of PDE \ref{eq:tpde} in time by follwing a very generic time-stepping strategy:
@@ -268,14 +276,85 @@ where $B_r(y)$ is a ball of radius $r$ centered at $y$.
 \begin{equation}
     \tilde{w}_e^m (y) = \sum_{k=1}^{n_y^m} \alpha_k^m K^m (y,x_k,a(x_k)) \varphi(a(x_k)),
 \end{equation}
-Here, 
+Here, $n_y^m$ is the number of neighbors $x_k$ within radius $r_m$. The MLP $K_m$ and $\varphi$ can be scale-specific or share parameters across scales. This paper chooses the shared parameters across all scales.
 
+\subsubsection{\bf Attentional Weighting in Local Integation (AGNO)}
+In the main text, authors propose an attention-based choice for the quadrature weights $\alpha_k^m$, as given by eq \ref{eq:atten_weights}:
+\begin{equation}
+    \alpha_k^m = \frac{\exp(e^m_k)}{\sum_{k'=1}^{n_y^m} \exp(e^m_{k'})}, \qquad e^m_k = \frac{\langle {\bf W}_q^m y,{\bf W}_\kappa^m x_k \rangle}{\sqrt{\overline{d}}},
+\end{equation}
+where $\bf W^m_q, \bf W^m_q \in \bb R^{\bar{d}\times d}$ (assuming original and latent coordinate dimension $d$, and attention dimension $\bar{d}$) are learnable query and key matrices. This mechanism allows the model to dynamically assign contribution weights to each neighbor $x_k$ based on the relationship between $y$ and $x_k$. This forms the final form of our Attentional Graph Neural Operator or AGNO at scale $m$.
+
+\subsubsection{\bf Attentional Fusion of Multiscale Features}
+After computing the AGNO features $\tilde{w}_e^m(y)$ for each scale (which is then fused with geometry embeddings, detailed in Sec. \ref{appendix:gembedd}, to form $\hat{w}^m(y)$), we need to integrate this information from different scales. Instead of simple addition or concatenation, authors introduce a small MLP $\psi_m$ to learn the relative contribution of each scale to the final encoded feature $w_e(y)$:
+\begin{equation}
+    w_e(y) = \sum_{m=1}^{\bar{m}} \beta_m(y) \hat{w}^m(y), \qquad \forall y \in \cal D, \qquad \beta_m(y) = \frac{\exp(\psi_m(y))}{\sum_{m'=1}^{M}\exp(\psi_{m'}(y))}
+\end{equation}
+Here, $\psi_m(y)$ is typically computed based on coordinates of $y$. $\beta_m(y)$ is the attention weight for the $m$-th scale at point $y$. 
+
+\noindent The final output of the MAGNO encoder, $w_e(y)$, is this a feature representation that adaptively weights and fuses multiscale local information with attention mechanisms. The MAGNO in the decoder follows the exact same structure, with different inputs, outputs, and operating objects.
 
 \subsection{\bf Geometry Embeddings} \label{appendix:gembedd}
+While the multiscale Attentional GNO already leverages geometric structure via local neighborhoods, one often needs to incorporate more explicit shape or domain information in practical PDE scenarios when the geometry of the domain itself is play an important role in solution operator. Authors introduce geometry embeddings to enhance the model's geometric awareness. These embeddings work in tandem with the MAGNO providing a rich geometric description for each token and its neighborhood at various scales $m$.
+
+\noindent Prior work on including geometric information in neural PDE solvers resorts to two major approaches:
+(i) appending geometry features directly into node/edge attributes \cite{SM2025}, or (ii) using a signed distance function (SDF) \cite{ZL2023}. However, authors argue that:
+\begin{itemize}\setlength{\itemsep}{0.8em}
+    \item Simply merging geometry and physical features at the node level may entangle them prematurely, potentially hurting performance when the geometry is complex or when additional modality (e.g. material properties) must be fused.
+    \item Computing SDF to represent geometry is often cumbersome, especially for unstructured datasets or when the boundary is only partially known. Each new shape would require re-computation, and the SDF values may be inaccurate if the surface is not well-defined.
+\end{itemize}
+
+\noindent Authors proposed two more direct and flexible mechanisms for extracting geometries descriptors: local {\it Statistical embedding} and {\it PointNet-based embeding}:
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{geom_embeddings.png}
+    \caption{Taken from \cite{SW2025}}
+    \label{fig:geom_embedding}
+\end{figure}
+
+\paragraph{\bf Local Statistical Embedding} The core idea is to extract statistical descriptors from the neighborhood $B_{r_m}(y)$ (or $B_{\hat{r}_m}(x)$ for the decoder) of the original point cloud points $x_k$ (or latent point $y_l$ for the decoder) for each latent point $y$ (for the encoder) or query point $x$ (for the decoder) at each scale $m$. Taking the encoder as an example, for a latent point $y\in \cal D$ and scale $m$, its neighborhood is $N_m(y) = \{x_k \in D_\Delta : |y-x_k| \leq r_m\},$ containing $n^m_y$ points. Here, we describe the calculation of PCA features and the other statistics are described in the main text \ref{par:geom_embeddings}.
+
+\begin{itemize}
+    \item PCA Features: These features aim to capture the local shape anisotropy of the distribution of the $n_y^m$ neighboring points $\{x_k\}$ within the $m$-th scale ball $B_{r_m}(y)$. This is achieved by performing PCA on the set of these neighboring coordinates $\{x_k\}$. Using the centroid of the neighbors $\bar{x}^m_{nbrs,y} = \left(\frac{1}{n^m_y} \sum_{k=1}^{n^m_y} x_k\right)$, the $d \times d$ covariance matrix of the neighbors coordinates is calculated as:
+    \begin{equation}
+        {\bf C}^m_y = \frac{1}{n^m_y} \sum_{k=1}^{n^m_y}(x_k - \bar{x}^m_{nbrs,y})(x_k - \bar{x}^m_{nbrs,y})^\top
+    \end{equation}
+    If $n^m_y = 0$ (or too few points for meaningful covariance, e.g. $n^m_y < d$), the covariance matrix ${\bf C}^m_y$ is treated as a zero matrix, leading to zero eigenvalues. Otherwise, the $d$-real eigenvalues of this symmetric, positive semi-definite covariance matrix, sorted in descending order $(\lambda^m_1 \geq \lambda^m_2 \geq \dots \geq \lambda^m_d \geq 0),$ are used as PCA features. hese eigenvalues represent the variance of the neighbor data along the principal component directions, thus describing the extent and orientation of the local point cloud cluster.
+\end{itemize}
+These statistical descriptors, computed for each scale $m$ and each point $y \in \cal D$, are concatenated into a vector $z^m_y$, normalized (e.g., to have zero mean and unit variance for each component), and then fed into an MLP to yield the geometry embedding $g^m(y)$ for that scale:
+\begin{equation}
+    g^m(y) = \text{MLP}_{\text{geo}}(\text{Normalize}(z^m_y))
+\end{equation} 
+This $\text{MLP}_{\text{geo}}$ is typically shared across all points and scales.
+
+\paragraph{\bf Point-based Embedding} As an alternative, we can train a PointNet-style network \cite{QC2017} to derive a compact geometric descriptor from each token's neighborhood. Classical PointNet architecture typically include:
+\begin{itemize}
+    \item Input Transformer: aligns input points to a canonical space (optional),
+    \item Shared MLP: processes each point individually,
+    \item Symmetric Pooling: aggregates per-point features into a global decriptor, ensuring permutation invariance.
+\end{itemize}
+In our PDE setting, we do not necessarily need an input transformer; the local coordinates can directly serve as input features. We replace the typical max-poooling TODO
 
 
 \subsection{\bf Processor} \label{appendix:processor}
+After constructing geometry-aware tokens, we employ a Transformer-based processor to enable global message passing among all tokens. Depending on the chosen tokenization strategy \ref{appendix:lgrid}, we can choose the following strategies, respectively:
+\begin{itemize}\setlength{\itemsep}{0.8em}
+    \item Regular Grid (Strategy I or III): If the latent points $\{y_l \in \cal D\}$ lie on a regular grid (e.g., via a structured stencil or a projected low-dimensional regular grid), we adopt a strategy similar to vision transformer (ViTs) \cite{AD2021}. The latent points are grouped into non-overlapping "patches". All tokens features $w_e(y)$ within each patch are flattened and linearly projected into a single patch token embedding. These patch tokens then serve as the input sequence to the Transformer.
+    \item Randomly Downsampled Points (Strategy II): If the latent points $\{y_l\}$ are randomly downsampled from the original point cloud $D_\Delta$, they lack a regular grid structure. In this case, there is no obvious "patching" method, and each latent token $w_e(y)$ directly serves as an element in the Transformer's input sequence.
+\end{itemize}
+\paragraph{\bf Positional Encoding} Transformers themselves are permutation-invariant and do not inherently process sequential order or spatial position. Thus, positional information must be rejected. In GAOT, we use the Rotary Positional Embeddings (RoPE), which is a method that integrates relative positional information direclty into the self-attention mechanism. It achieves this by applying rotations, dependent on their relative positions, to the Query and Key vector. This has shown strong performance in many Transformer models.
 
+\paragraph{\bf Transformer Block Structure} For the transformer blocks, we adopt an RMS norm RMSNorm($\cdot$) at the beginning of attention and feedforward layer:
+\begin{equation}
+    {\bf z} = \text{RMSNorm}({\bf x}), \qquad \text{RMSNorm}({\bf x}) = \frac{{\bf x}}{\sqrt{\text{mean}({\bf x}^2)}} \odot {\bf \alpha}
+\end{equation}
+where ${\bf \alpha}$ is a learned scaling parameter. This approach is akin to LayerNorm but uses the root mean square of feature magnitudes rather than computing mean-and-variance separately. This prenorm design helps stabilize the gradient flow compared to the conventions in \cite{AV2017}. Each block has the structure,
+\begin{equation}
+    {\bf Z}_{\text{attn}} = {\bf X} + \text{MultiHeadAttn}(\text{RMSNorm}({\bf X})), \qquad {\bf Z}_{\text{ffn}} = {\bf Z}_{\text{ffn}} + \text{FFN}(\text{RMSNorm}({\bf Z}_{\text{attn}})).    
+\end{equation}
+Furthermore, we use {\bf Group Query} and {\bf Flash Attention} in the code for efficient multi-head self-attention.
+
+\paragraph{\bf Long-Range Skip Connections} In addition to the intra-block residual connections, we also introduce long-range skip connections across multiple Transformer blocks. For instance, the Transformer blocks can be divided into an earlier part and a later part, and layers can be symmetrically connected (e.g., the first with the last, the second with the second-to-last, etc.), allowing later blocks to directly receive information from earlier blocks, further improving information flow. By stacking these blocks, the Transformer processor learns complex global dependencies among tokens, transforming the locally geometry-aware tokens $w_e(y_l)$ from the encoder into processed tokens $w_p(y_l)$ that incorporate richer contextual information. These processed tokens are then converted by the MAGNO decoder to the desired approximation of the output of the underlying solution operator.
 
 \bibliographystyle{plainnat}
 \bibliography{gaot}
